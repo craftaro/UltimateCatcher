@@ -102,7 +102,7 @@ public class Methods {
                 jsonObject.put("armor", horse.getInventory().getArmor().getType().name());
             if (horse.getInventory().getSaddle() != null)
                 jsonObject.put("saddle", horse.getInventory().getSaddle().getType().name());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_13) && entity instanceof Panda) {
+        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Panda) {
             Panda panda = ((Panda) entity);
             jsonObject.put("geneHidden", panda.getHiddenGene().name());
             jsonObject.put("geneMain", panda.getMainGene().name());
