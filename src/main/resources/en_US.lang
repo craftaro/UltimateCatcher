@@ -1,0 +1,10 @@
+#General Messages
+
+general.nametag.prefix = "&8[&6UltimateCatcher&8]"
+
+general.catcher.spawn = "&7%type% &6Spawn Egg"
+general.catcher.name = "&6Mob Catcher"
+
+#Event Messages
+
+event.general.nopermission = "&cYou do not have permission to do that."

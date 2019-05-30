@@ -1,0 +1,13 @@
+name: UltimateCatcher
+description: UltimateCatcher
+version: maven-version-number
+main: com.songoda.ultimatecatcher.UltimateCatcher
+softdepend: [UltimateStacker]
+author: songoda
+api-version: 1.13
+commands:
+  UltimateCatcher:
+    description: I have no idea.
+    default: true
+    aliases: [uc]
+    usage: /<command> [reload]
