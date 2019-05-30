@@ -9,7 +9,7 @@ import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
 import com.songoda.ultimatestacker.utils.ConfigWrapper;
-import com.songoda.update.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;

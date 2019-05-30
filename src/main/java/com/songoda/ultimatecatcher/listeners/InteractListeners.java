@@ -3,6 +3,7 @@ package com.songoda.ultimatecatcher.listeners;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -13,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -33,6 +35,10 @@ public class InteractListeners implements Listener {
 
     @EventHandler
     public void onInt(PlayerInteractEntityEvent event) {
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+        }
+
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
@@ -62,14 +68,16 @@ public class InteractListeners implements Listener {
 
     @EventHandler
     public void onToss(PlayerInteractEvent event) {
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+        }
         if (event.getItem() == null) return;
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
 
         if (!item.hasItemMeta()) return;
-
-        if (useEgg(player, item)) {
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_AIR && useEgg(player, item)) {
             event.setCancelled(true);
         } else if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
@@ -120,6 +128,7 @@ public class InteractListeners implements Listener {
 
         if (entity == null) {
             egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
+            egg.remove();
             return;
         }
 
@@ -127,8 +136,10 @@ public class InteractListeners implements Listener {
 
         if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")) {
             egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
+            egg.remove();
             return;
         }
+        egg.remove();
 
         Material material = Material.matchMaterial(entity.getType() + "_SPAWN_EGG");
         if (material == null) return;
@@ -143,13 +154,28 @@ public class InteractListeners implements Listener {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn", Methods.formatText(entity.getCustomName() != null && !plugin.getStacker().isStacked(entity) ? entity.getCustomName() : entity.getType().name().toLowerCase(), true)));
+
+        List<String> lore = new ArrayList<>();
+        lore.add(Methods.formatText("&7Type: &6" + Methods.formatText(entity.getType().getName(), true)));
+
+        double health = ((LivingEntity) entity).getHealth();
+        double max = ((LivingEntity) entity).getMaxHealth();
+
+        lore.add(Methods.formatText("&7Health: &6" + (health == max ? "Max" : health + "/" + max)));
+
+        if (entity instanceof Ageable)
+            lore.add(Methods.formatText("&7Age: &6" + (((Ageable) entity).isAdult() ? "Adult" : "Baby")));
+
+        if (entity instanceof Tameable && ((Tameable) entity).isTamed())
+            lore.add((Methods.formatText("&6Tamed")));
+
+        meta.setLore(lore);
         item.setItemMeta(meta);
 
         entity.getWorld().dropItem(entity.getLocation(), item);
 
         entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
         entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
-        egg.remove();
     }
 
 }

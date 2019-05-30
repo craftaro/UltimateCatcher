@@ -4,7 +4,7 @@ stages:
 variables:
   name: "UltimateCatcher"
   path: "/builds/$CI_PROJECT_PATH"
-  version: "1-Pre-Release-1"
+  version: "1-Pre-Release-2"
 
 build:
   stage: build

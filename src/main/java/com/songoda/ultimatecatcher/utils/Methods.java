@@ -1,7 +1,7 @@
 package com.songoda.ultimatecatcher.utils;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.update.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -81,10 +81,16 @@ public class Methods {
 
         if (entity instanceof Sheep) {
             Sheep sheep = ((Sheep) entity);
-            if (sheep.isSheared()) {
+            if (sheep.isSheared())
                 jsonObject.put("sheered", true);
-            }
             jsonObject.put("color", sheep.getColor().name());
+        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Cat) {
+            Cat cat = ((Cat) entity);
+            jsonObject.put("color", cat.getCollarColor().name());
+            jsonObject.put("type", cat.getCatType().name());
+        } else if (entity instanceof Wolf) {
+            Wolf wolf = ((Wolf) entity);
+            jsonObject.put("color", wolf.getCollarColor().name());
         } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_11) && entity instanceof Llama) {
             Llama llama = ((Llama) entity);
             jsonObject.put("color", llama.getColor().name());
@@ -138,10 +144,22 @@ public class Methods {
             entity.setHealth(health > entity.getMaxHealth() ? entity.getMaxHealth() : health);
 
             switch (entity.getType()) {
+                case CAT:
+                    Cat cat = (Cat) entity;
+                    cat.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
+                    cat.setCatType(Cat.Type.valueOf((String) jsonObject.get("type")));
+                    break;
+                case WOLF:
+                    Wolf wolf = (Wolf) entity;
+                    wolf.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
+                    break;
                 case SHEEP:
                     Sheep sheep = (Sheep) entity;
                     sheep.setColor(DyeColor.valueOf((String) jsonObject.get("color")));
-                    sheep.setSheared((boolean) jsonObject.get("sheered"));
+
+                    Object sheared = jsonObject.get("sheered");
+                    if (sheared != null)
+                        sheep.setSheared((boolean) sheared);
                     break;
                 case LLAMA:
                     Llama llama = (Llama) entity;

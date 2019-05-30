@@ -2,7 +2,7 @@ package com.songoda.ultimatecatcher.utils.settings;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.Methods;
-import com.songoda.update.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
