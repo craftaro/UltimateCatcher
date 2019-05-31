@@ -10,6 +10,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -31,7 +32,7 @@ public class InteractListeners implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
@@ -61,7 +62,7 @@ public class InteractListeners implements Listener {
         return false;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onToss(PlayerInteractEvent event) {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) return;
@@ -102,7 +103,7 @@ public class InteractListeners implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSmack(ProjectileHitEvent event) {
         if (event.getEntity().getType() != EntityType.EGG) return;
 
@@ -126,7 +127,7 @@ public class InteractListeners implements Listener {
             return;
         }
 
-        String formatedType = Methods.formatText(entity.getType().getName(), true);
+        String formatedType = Methods.formatText(entity.getType().name().toLowerCase(), true);
         ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
@@ -150,6 +151,15 @@ public class InteractListeners implements Listener {
                 || !player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
             reject(egg, true);
+            return;
+        }
+
+        int ch = Integer.parseInt(configurationSection.getString("Mobs." + entity.getType().name() + ".Chance")
+                .replace("%", ""));
+        double rand = Math.random() * 100;
+        if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
+            egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.failed", formatedType));
             return;
         }
 

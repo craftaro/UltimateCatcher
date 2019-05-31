@@ -62,6 +62,7 @@ public class UltimateCatcher extends JavaPlugin {
             if (value.isSpawnable() && value.isAlive() && !value.toString().contains("ARMOR")) {
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Cost", 0.00);
+                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Chance", "100%");
             }
         }
         mobFile.getConfig().options().copyDefaults(true);
