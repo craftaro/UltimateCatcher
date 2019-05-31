@@ -8,6 +8,15 @@ import java.util.stream.Collectors;
 
 public enum Setting {
 
+    USE_CATCHER_RECIPE("Main.Use Catcher Recipe", true,
+            "Should the cather recipe be enabled."),
+
+    CATCHER_RECIPE("Main.Catcher Recipe", Arrays.asList("1:EGG", "5:DIAMOND"),
+            "This is the recipe for the recipe in which you can create" +
+                    "Catchers with. It is infinitely expandable however you will only" +
+                    "be able to craft it with as many slots as is available in the" +
+                    "crafting interface."),
+
     LANGUGE_MODE("System.Language Mode", "en_US",
             "The enabled language file.",
             "More language files (if available) can be found in the plugins data folder.");

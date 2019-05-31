@@ -35,15 +35,13 @@ public class InteractListeners implements Listener {
 
     @EventHandler
     public void onInt(PlayerInteractEntityEvent event) {
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
-        }
 
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (useEgg(event.getPlayer(), item)) {
+        if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UCI-")) {
             event.setCancelled(true);
+            return;
         }
 
     }

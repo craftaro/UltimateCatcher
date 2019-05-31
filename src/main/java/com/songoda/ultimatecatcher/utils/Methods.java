@@ -102,6 +102,9 @@ public class Methods {
             jsonObject.put("size", slime.getSize());
         } else if (entity instanceof Horse) {
             Horse horse = ((Horse) entity);
+            jsonObject.put("jump", horse.getJumpStrength());
+            jsonObject.put("maxDomestication", horse.getMaxDomestication());
+            jsonObject.put("domestication", horse.getDomestication());
             jsonObject.put("color", horse.getColor().name());
             jsonObject.put("style", horse.getStyle().name());
             if (horse.getInventory().getArmor() != null)
@@ -177,6 +180,9 @@ public class Methods {
                     Horse horse = (Horse) entity;
                     horse.setColor(Horse.Color.valueOf((String) jsonObject.get("color")));
                     horse.setStyle(Horse.Style.valueOf((String) jsonObject.get("style")));
+                    horse.setJumpStrength((double)jsonObject.get("jump"));
+                    horse.setDomestication(Math.toIntExact((long)jsonObject.get("domestication")));
+                    horse.setMaxDomestication(Math.toIntExact((long)jsonObject.get("maxDomestication")));
 
                     Object armor = jsonObject.get("armor");
                     Object saddle = jsonObject.get("saddle");

@@ -7,13 +7,16 @@ import com.songoda.ultimatecatcher.stacker.UltimateStacker;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
+import com.songoda.ultimatecatcher.utils.settings.Setting;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
 import com.songoda.ultimatestacker.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -74,6 +77,16 @@ public class UltimateCatcher extends JavaPlugin {
         this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
 
         EggTrackingTask.startTask(this);
+
+        // Register recipe
+        if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
+            ShapelessRecipe shapelessRecipe = new ShapelessRecipe(Methods.createCatcher());
+            for (String item : Setting.CATCHER_RECIPE.getStringList()) {
+                String[] split = item.split(":");
+                shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
+            }
+            Bukkit.addRecipe(shapelessRecipe);
+        }
 
         // Starting Metrics
         new Metrics(this);
