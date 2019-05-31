@@ -24,13 +24,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-public class InteractListeners implements Listener {
+public class EntityListeners implements Listener {
 
     private final UltimateCatcher plugin;
 
     private Map<UUID, UUID> eggs = new HashMap<>();
 
-    public InteractListeners(UltimateCatcher plugin) {
+    public EntityListeners(UltimateCatcher plugin) {
         this.plugin = plugin;
     }
 

@@ -4,7 +4,8 @@ import com.songoda.ultimatecatcher.command.CommandManager;
 import com.songoda.ultimatecatcher.economy.Economy;
 import com.songoda.ultimatecatcher.economy.PlayerPointsEconomy;
 import com.songoda.ultimatecatcher.economy.VaultEconomy;
-import com.songoda.ultimatecatcher.listeners.InteractListeners;
+import com.songoda.ultimatecatcher.listeners.DispenserListeners;
+import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.stacker.Stacker;
 import com.songoda.ultimatecatcher.stacker.UltimateStacker;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
@@ -76,7 +77,8 @@ public class UltimateCatcher extends JavaPlugin {
         if (pluginManager.isPluginEnabled("UltimateStacker"))
             stacker = new UltimateStacker();
 
-        Bukkit.getPluginManager().registerEvents(new InteractListeners(this), this);
+        pluginManager.registerEvents(new EntityListeners(this), this);
+        pluginManager.registerEvents(new DispenserListeners(), this);
 
         String langMode = getConfig().getString("System.Language Mode");
         Locale.init(this);
