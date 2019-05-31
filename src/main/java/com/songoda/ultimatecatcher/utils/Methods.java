@@ -71,7 +71,8 @@ public class Methods {
         jsonObject.put("type", entity.getType().name());
         if (entity instanceof Ageable)
             jsonObject.put("baby", !((Ageable) entity).isAdult());
-        if (entity.getCustomName() != null)
+        if (entity.getCustomName() != null && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
+                && !UltimateCatcher.getInstance().getStacker().isStacked(entity))
             jsonObject.put("name", entity.getCustomName());
         jsonObject.put("health", entity.getHealth());
 

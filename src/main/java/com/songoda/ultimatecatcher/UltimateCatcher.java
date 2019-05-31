@@ -1,6 +1,9 @@
 package com.songoda.ultimatecatcher;
 
 import com.songoda.ultimatecatcher.command.CommandManager;
+import com.songoda.ultimatecatcher.economy.Economy;
+import com.songoda.ultimatecatcher.economy.PlayerPointsEconomy;
+import com.songoda.ultimatecatcher.economy.VaultEconomy;
 import com.songoda.ultimatecatcher.listeners.InteractListeners;
 import com.songoda.ultimatecatcher.stacker.Stacker;
 import com.songoda.ultimatecatcher.stacker.UltimateStacker;
@@ -33,6 +36,8 @@ public class UltimateCatcher extends JavaPlugin {
     private CommandManager commandManager;
     private SettingsManager settingsManager;
 
+    private Economy economy;
+
     private ServerVersion serverVersion = ServerVersion.fromPackageName(Bukkit.getServer().getClass().getPackage().getName());
 
     public static UltimateCatcher getInstance() {
@@ -56,6 +61,7 @@ public class UltimateCatcher extends JavaPlugin {
         for (EntityType value : EntityType.values()) {
             if (value.isSpawnable() && value.isAlive() && !value.toString().contains("ARMOR")) {
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
+                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Cost", 0.00);
             }
         }
         mobFile.getConfig().options().copyDefaults(true);
@@ -77,6 +83,14 @@ public class UltimateCatcher extends JavaPlugin {
         this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
 
         EggTrackingTask.startTask(this);
+
+        // Setup Economy
+        if (Setting.VAULT_ECONOMY.getBoolean()
+                && getServer().getPluginManager().getPlugin("Vault") != null)
+            this.economy = new VaultEconomy(this);
+        else if (Setting.PLAYER_POINTS_ECONOMY.getBoolean()
+                && getServer().getPluginManager().getPlugin("PlayerPoints") != null)
+            this.economy = new PlayerPointsEconomy(this);
 
         // Register recipe
         if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
@@ -151,5 +165,9 @@ public class UltimateCatcher extends JavaPlugin {
 
     public ConfigWrapper getMobFile() {
         return mobFile;
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 }

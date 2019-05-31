@@ -46,7 +46,7 @@ public class EggTrackingTask extends BukkitRunnable {
                 continue;
             }
 
-            if (item.isOnGround() && item.getTicksLived() > 10 || item.getTicksLived() > 30) {
+            if (item.isOnGround() && item.getTicksLived() > 10 || item.getTicksLived() > 50) {
                 String[] split = item.getItemStack().getItemMeta().getDisplayName().split("~");
                 String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 

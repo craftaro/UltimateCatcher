@@ -1,6 +1,7 @@
 package com.songoda.ultimatecatcher.listeners;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
+import com.songoda.ultimatecatcher.economy.Economy;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
@@ -126,6 +127,8 @@ public class InteractListeners implements Listener {
             return;
         }
 
+        String formatedType = Methods.formatText(entity.getType().getName(), true);
+
         ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
 
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
@@ -139,6 +142,23 @@ public class InteractListeners implements Listener {
             egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
             egg.remove();
             return;
+        }
+
+        Player player = offlinePlayer.getPlayer();
+
+        Economy economy = plugin.getEconomy();
+        double cost = configurationSection.getDouble("Mobs." + entity.getType().name() + ".Cost");
+
+        if (economy != null && cost != 0) {
+            if (economy.hasBalance(player, cost))
+                economy.withdrawBalance(player, cost);
+            else {
+                player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.cantafford",cost, formatedType));
+                entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+                egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
+                egg.remove();
+                return;
+            }
         }
         egg.remove();
 
@@ -158,10 +178,10 @@ public class InteractListeners implements Listener {
                 Methods.formatText(entity.getCustomName() != null
                         && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
                         && !plugin.getStacker().isStacked(entity) ? entity.getCustomName()
-                        : entity.getType().name().toLowerCase(), true)));
+                        : formatedType)));
 
         List<String> lore = new ArrayList<>();
-        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type", Methods.formatText(entity.getType().getName(), true)));
+        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type", formatedType));
 
         double health = ((LivingEntity) entity).getHealth();
         double max = ((LivingEntity) entity).getMaxHealth();
@@ -177,8 +197,9 @@ public class InteractListeners implements Listener {
         meta.setLore(lore);
         item.setItemMeta(meta);
 
-        entity.getWorld().dropItem(entity.getLocation(), item);
+        player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.success", formatedType));
 
+        entity.getWorld().dropItem(entity.getLocation(), item);
         entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
         entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
     }
