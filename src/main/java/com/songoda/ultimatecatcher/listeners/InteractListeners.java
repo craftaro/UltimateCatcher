@@ -122,41 +122,43 @@ public class InteractListeners implements Listener {
         Entity entity = event.getHitEntity();
 
         if (entity == null) {
-            egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
-            egg.remove();
+            reject(egg, false);
             return;
         }
 
         String formatedType = Methods.formatText(entity.getType().getName(), true);
-
         ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
-
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
-        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")
-                || !offlinePlayer.isOnline()
-                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.*")
-                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals
-                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster) {
-            entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
-            egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
-            egg.remove();
+        if (!offlinePlayer.isOnline()) {
+            reject(egg, true);
             return;
         }
 
-        Player player = offlinePlayer.getPlayer();
-
         Economy economy = plugin.getEconomy();
         double cost = configurationSection.getDouble("Mobs." + entity.getType().name() + ".Cost");
+        Player player = offlinePlayer.getPlayer();
+
+        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")) {
+            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
+            reject(egg, true);
+            return;
+        }
+
+        if (!player.hasPermission("ultimatecatcher.catch.*")
+                || !player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals
+                || !player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster) {
+            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
+            reject(egg, true);
+            return;
+        }
 
         if (economy != null && cost != 0) {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
             else {
                 player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.cantafford",cost, formatedType));
-                entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
-                egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
-                egg.remove();
+                reject(egg, true);
                 return;
             }
         }
@@ -202,6 +204,13 @@ public class InteractListeners implements Listener {
         entity.getWorld().dropItem(entity.getLocation(), item);
         entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
         entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
+    }
+
+    private void reject(Egg egg, boolean sound) {
+        if (sound)
+            egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+        egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
+        egg.remove();
     }
 
 }
