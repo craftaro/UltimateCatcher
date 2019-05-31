@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -61,6 +62,20 @@ public class InteractListeners implements Listener {
             return true;
         }
         return false;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onStartExist(CreatureSpawnEvent event) {
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_12)) return;
+
+        if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
+
+        Entity entity = event.getEntity();
+
+        if (!(entity instanceof Ageable) || ((Ageable) entity).isAdult()) return;
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            if (entity.getCustomName() != null && entity.getCustomName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) entity.remove();
+        }, 1L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
