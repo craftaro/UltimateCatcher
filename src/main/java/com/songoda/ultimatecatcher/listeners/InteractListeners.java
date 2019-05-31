@@ -154,18 +154,18 @@ public class InteractListeners implements Listener {
                 + plugin.getLocale().getMessage("general.catcher.spawn", Methods.formatText(entity.getCustomName() != null && !plugin.getStacker().isStacked(entity) ? entity.getCustomName() : entity.getType().name().toLowerCase(), true)));
 
         List<String> lore = new ArrayList<>();
-        lore.add(Methods.formatText("&7Type: &6" + Methods.formatText(entity.getType().getName(), true)));
+        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type", Methods.formatText(entity.getType().getName(), true)));
 
         double health = ((LivingEntity) entity).getHealth();
         double max = ((LivingEntity) entity).getMaxHealth();
 
-        lore.add(Methods.formatText("&7Health: &6" + (health == max ? "Max" : health + "/" + max)));
+        lore.add(plugin.getLocale().getMessage("general.catcherinfo.health", (health == max ? "Max" : health + "/" + max)));
 
         if (entity instanceof Ageable)
-            lore.add(Methods.formatText("&7Age: &6" + (((Ageable) entity).isAdult() ? "Adult" : "Baby")));
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age", (((Ageable) entity).isAdult() ? "Adult" : "Baby")));
 
         if (entity instanceof Tameable && ((Tameable) entity).isTamed())
-            lore.add((Methods.formatText("&6Tamed")));
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed"));
 
         meta.setLore(lore);
         item.setItemMeta(meta);
