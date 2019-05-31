@@ -35,12 +35,13 @@ public class InteractListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+        }
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (item.getItemMeta().hasDisplayName()
-                && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "")
-                .startsWith("UCI-"))
+        if (useEgg(event.getPlayer(), item))
             event.setCancelled(true);
     }
 
@@ -49,7 +50,6 @@ public class InteractListeners implements Listener {
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
-            egg.setShooter(player);
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
@@ -83,13 +83,17 @@ public class InteractListeners implements Listener {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) return;
         }
+
         if (event.getItem() == null) return;
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
 
         if (!item.hasItemMeta()) return;
-        if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_AIR && useEgg(player, item)) {
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK
+                && event.getAction() != Action.LEFT_CLICK_AIR
+                && event.getAction() != Action.PHYSICAL
+                && useEgg(player, item)) {
             event.setCancelled(true);
         } else if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
@@ -125,25 +129,24 @@ public class InteractListeners implements Listener {
         if (event.getEntity().getType() != EntityType.EGG) return;
 
         Egg egg = (Egg) event.getEntity();
-        if (!egg.getCustomName().equals("UCI")) return;
+        if (!egg.getCustomName().equals("UCI") || egg.isOnGround()) return;
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream().filter(entity -> entity.getTicksLived() <= 20
-                    && entity.getType() == EntityType.CHICKEN).findFirst();
-            if (found.isPresent()) {
-                if (found.get() instanceof LivingEntity) {
-                    found.get().remove();
-                }
-            }
-        }, 0L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+                egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream()
+                        .filter(entity -> entity instanceof LivingEntity
+                                && entity.getTicksLived() <= 20
+                                && entity.getType() != EntityType.PLAYER
+                                && entity.getType() == EntityType.CHICKEN).findFirst().ifPresent(Entity::remove), 0L);
 
         Entity entity = null;
 
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_11))
             entity = event.getHitEntity();
         else {
-            Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream()
-                    .filter(e -> e instanceof LivingEntity && e.getType() != EntityType.EGG)
+            Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 2, 2, 2).stream()
+                    .filter(e -> e instanceof LivingEntity
+                            && e.getType() != EntityType.PLAYER
+                            && e.getTicksLived() > 20)
                     .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation()))).findFirst();
             if (found.isPresent()) {
                 entity = found.get();
