@@ -14,6 +14,9 @@ import com.songoda.ultimatecatcher.utils.Metrics;
 import com.songoda.ultimatecatcher.utils.settings.Setting;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.updateModules.LocaleModule;
+import com.songoda.update.Plugin;
+import com.songoda.update.SongodaUpdate;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -80,6 +83,11 @@ public class UltimateCatcher extends JavaPlugin {
         Locale.saveDefaultLocale("en_US");
 
         this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
+
+        //Running Songoda Updater
+        Plugin plugin = new Plugin(this, 51);
+        plugin.addModule(new LocaleModule());
+        SongodaUpdate.load(plugin);
 
         this.references = new References();
 
