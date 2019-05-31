@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -35,21 +36,22 @@ public class InteractListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
+        boolean isOffHand = false;
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) {
-                event.setCancelled(true);
-                return;
+                isOffHand = true;
             }
         }
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (useEgg(event.getPlayer(), item))
+        if (useEgg(event.getPlayer(), item, isOffHand))
             event.setCancelled(true);
     }
 
-    private boolean useEgg(Player player, ItemStack item) {
+    private boolean useEgg(Player player, ItemStack item, boolean isOffHand) {
         if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UCI-")) {
+            if (isOffHand) return true;
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
@@ -68,6 +70,11 @@ public class InteractListeners implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    public void InventorySnotch(InventoryPickupItemEvent event) {
+        if (eggs.containsKey(event.getItem().getUniqueId())) event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onStartExist(CreatureSpawnEvent event) {
         if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
 
@@ -81,8 +88,11 @@ public class InteractListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onToss(PlayerInteractEvent event) {
+        boolean isOffHand = false;
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+            if (event.getHand() == EquipmentSlot.OFF_HAND) {
+                isOffHand = true;
+            }
         }
 
         if (event.getItem() == null) return;
@@ -94,15 +104,19 @@ public class InteractListeners implements Listener {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK
                 && event.getAction() != Action.LEFT_CLICK_AIR
                 && event.getAction() != Action.PHYSICAL
-                && useEgg(player, item)) {
+                && useEgg(player, item, isOffHand)) {
             event.setCancelled(true);
         } else if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
             event.setCancelled(true);
+            if (isOffHand) return;
 
             Location location = player.getEyeLocation().clone();
 
             ItemStack toThrow = item.clone();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                toThrow.removeEnchantment(Enchantment.ARROW_KNOCKBACK);
+            }, 50);
             toThrow.setAmount(1);
             Methods.setMax(item, 1);
 
@@ -192,7 +206,7 @@ public class InteractListeners implements Listener {
         if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
 
             if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
-            egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+                egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.failed", formatedType));
             return;
         }
