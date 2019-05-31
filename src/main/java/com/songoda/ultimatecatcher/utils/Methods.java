@@ -45,7 +45,7 @@ public class Methods {
     }
 
     public static ItemStack createCatcher() {
-        ItemStack item = new ItemStack(Material.GHAST_SPAWN_EGG);
+        ItemStack item = new ItemStack(UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_13) ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte)56);
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UCI-") + UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.name"));
@@ -72,7 +72,7 @@ public class Methods {
         if (entity instanceof Ageable)
             jsonObject.put("baby", !((Ageable) entity).isAdult());
         if (entity.getCustomName() != null && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                && !UltimateCatcher.getInstance().getStacker().isStacked(entity))
+                && (UltimateCatcher.getInstance().getStacker() != null && !UltimateCatcher.getInstance().getStacker().isStacked(entity)))
             jsonObject.put("name", entity.getCustomName());
         jsonObject.put("health", entity.getHealth());
 

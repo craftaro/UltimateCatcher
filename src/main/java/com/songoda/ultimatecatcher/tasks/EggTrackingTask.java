@@ -2,18 +2,15 @@ package com.songoda.ultimatecatcher.tasks;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.Methods;
-import org.bukkit.Bukkit;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class EggTrackingTask extends BukkitRunnable {
@@ -52,8 +49,10 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 Entity entity = Methods.spawnEntity(item.getLocation(), json);
 
-                entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-                entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
+                if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+                    entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+                    entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
+                }
 
                 eggs.remove(item);
                 item.remove();

@@ -8,11 +8,11 @@ import com.songoda.ultimatecatcher.listeners.InteractListeners;
 import com.songoda.ultimatecatcher.stacker.Stacker;
 import com.songoda.ultimatecatcher.stacker.UltimateStacker;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
+import com.songoda.ultimatecatcher.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
 import com.songoda.ultimatecatcher.utils.settings.Setting;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
-import com.songoda.ultimatestacker.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -79,9 +79,9 @@ public class UltimateCatcher extends JavaPlugin {
         Locale.init(this);
         Locale.saveDefaultLocale("en_US");
 
-        this.references = new References();
-
         this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
+
+        this.references = new References();
 
         EggTrackingTask.startTask(this);
 

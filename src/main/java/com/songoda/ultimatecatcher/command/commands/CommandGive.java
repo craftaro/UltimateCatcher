@@ -37,7 +37,7 @@ public class CommandGive extends AbstractCommand {
 
     @Override
     public String getPermissionNode() {
-        return "ultimatestacker.admin";
+        return "ultimatecatcher.admin";
     }
 
     @Override

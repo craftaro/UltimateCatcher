@@ -13,6 +13,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityBreedEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -32,7 +35,7 @@ public class InteractListeners implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST) //ToDo: Ignore canceled.
     public void onEntitySmack(PlayerInteractEntityEvent event) {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
@@ -41,7 +44,6 @@ public class InteractListeners implements Listener {
             event.setCancelled(true);
             return;
         }
-
     }
 
     private boolean useEgg(Player player, ItemStack item) {
@@ -49,9 +51,11 @@ public class InteractListeners implements Listener {
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
+            egg.setShooter(player);
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
+                if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
             location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
@@ -62,7 +66,7 @@ public class InteractListeners implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST) //ToDo: Ignore canceled.
     public void onToss(PlayerInteractEvent event) {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) return;
@@ -94,7 +98,8 @@ public class InteractListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-            location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
+            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
+                location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
@@ -120,7 +125,18 @@ public class InteractListeners implements Listener {
             }
         }, 0L);
 
-        Entity entity = event.getHitEntity();
+        Entity entity = null;
+
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_11))
+            entity = event.getHitEntity();
+        else {
+            Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream()
+                    .filter(e -> e instanceof LivingEntity && e.getType() != EntityType.EGG)
+                    .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation()))).findFirst();
+            if (found.isPresent()) {
+                entity = found.get();
+            }
+        }
 
         if (entity == null) {
             reject(egg, false);
@@ -158,6 +174,8 @@ public class InteractListeners implements Listener {
                 .replace("%", ""));
         double rand = Math.random() * 100;
         if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
+
+            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
             egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.failed", formatedType));
             return;
@@ -174,22 +192,28 @@ public class InteractListeners implements Listener {
         }
         egg.remove();
 
-        Material material = Material.matchMaterial(entity.getType() + "_SPAWN_EGG");
-        if (material == null) return;
 
-        if (plugin.getStacker().isStacked(entity))
+        ItemStack item;
+
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_13)) {
+            Material material = Material.matchMaterial(entity.getType() + "_SPAWN_EGG");
+            if (material == null) return;
+            item = new ItemStack(material);
+        } else {
+            item = new ItemStack(Material.valueOf("MONSTER_EGG"), 1, entity.getType().getTypeId());
+        }
+
+        if (plugin.getStacker() != null && plugin.getStacker().isStacked(entity))
             plugin.getStacker().removeOne(entity);
         else
             entity.remove();
-
-        ItemStack item = new ItemStack(material);
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn",
                 Methods.formatText(entity.getCustomName() != null
                         && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                        && !plugin.getStacker().isStacked(entity) ? entity.getCustomName()
+                        && (plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
                         : formatedType)));
 
         List<String> lore = new ArrayList<>();
@@ -212,12 +236,15 @@ public class InteractListeners implements Listener {
         player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.success", formatedType));
 
         entity.getWorld().dropItem(entity.getLocation(), item);
-        entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-        entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
+
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+            entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+            entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
+        }
     }
 
     private void reject(Egg egg, boolean sound) {
-        if (sound)
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9) && sound)
             egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
         egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
         egg.remove();
