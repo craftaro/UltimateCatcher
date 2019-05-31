@@ -18,24 +18,20 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class InteractListeners implements Listener {
 
     private final UltimateCatcher plugin;
 
-    private List<UUID> eggs = new ArrayList<>();
+    private Map<UUID, UUID> eggs = new HashMap<>();
 
     public InteractListeners(UltimateCatcher plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void onInt(PlayerInteractEntityEvent event) {
-
+    public void onEntitySmack(PlayerInteractEntityEvent event) {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
@@ -52,7 +48,7 @@ public class InteractListeners implements Listener {
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
 
-            eggs.add(egg.getUniqueId());
+            eggs.put(egg.getUniqueId(), player.getUniqueId());
 
             location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
 
@@ -94,7 +90,7 @@ public class InteractListeners implements Listener {
 
             egg.setPickupDelay(9999);
 
-            eggs.add(egg.getUniqueId());
+            eggs.put(egg.getUniqueId(), player.getUniqueId());
 
             location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
 
@@ -132,7 +128,14 @@ public class InteractListeners implements Listener {
 
         ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
 
-        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
+
+        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")
+                || !offlinePlayer.isOnline()
+                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.*")
+                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals
+                || !offlinePlayer.getPlayer().hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster) {
+            entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
             egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
             egg.remove();
             return;
