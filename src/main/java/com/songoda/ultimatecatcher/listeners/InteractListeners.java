@@ -36,7 +36,10 @@ public class InteractListeners implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+            if (event.getHand() == EquipmentSlot.OFF_HAND) {
+                event.setCancelled(true);
+                return;
+            }
         }
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
@@ -66,8 +69,6 @@ public class InteractListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStartExist(CreatureSpawnEvent event) {
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_12)) return;
-
         if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
 
         Entity entity = event.getEntity();
