@@ -139,7 +139,7 @@ public class InteractListeners implements Listener {
         double cost = configurationSection.getDouble("Mobs." + entity.getType().name() + ".Cost");
         Player player = offlinePlayer.getPlayer();
 
-        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled")) {
+        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled") && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
             reject(egg, true);
             return;
@@ -153,7 +153,7 @@ public class InteractListeners implements Listener {
             return;
         }
 
-        if (economy != null && cost != 0) {
+        if (economy != null && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
             else {
