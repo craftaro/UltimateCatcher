@@ -1,7 +1,6 @@
 package com.songoda.ultimatecatcher.utils;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -70,8 +69,8 @@ public class Methods {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("type", entity.getType().name());
-        if (entity instanceof Ageable && !((Ageable) entity).isAdult())
-            jsonObject.put("baby", true);
+        if (entity instanceof Ageable)
+            jsonObject.put("baby", !((Ageable) entity).isAdult());
         if (entity.getCustomName() != null)
             jsonObject.put("name", entity.getCustomName());
         jsonObject.put("health", entity.getHealth());
@@ -134,8 +133,12 @@ public class Methods {
             Object name = jsonObject.get("name");
             Object tamed = jsonObject.get("tamed");
 
-            if (baby != null)
-                ((Ageable) entity).setBaby();
+            if (baby != null) {
+                if ((boolean) baby)
+                    ((Ageable) entity).setBaby();
+                else
+                    ((Ageable) entity).setAdult();
+            }
 
             if (name != null)
                 entity.setCustomName((String) name);
