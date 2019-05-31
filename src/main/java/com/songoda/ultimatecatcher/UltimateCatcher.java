@@ -63,7 +63,13 @@ public class UltimateCatcher extends JavaPlugin {
         this.commandManager = new CommandManager(this);
 
         for (EntityType value : EntityType.values()) {
-            if (value.isSpawnable() && value.isAlive() && !value.toString().contains("ARMOR")) {
+            if (value.isSpawnable()
+                    && value.isAlive()
+                    && !value.toString().contains("ARMOR")
+                    && value != EntityType.PLAYER
+                    && value != EntityType.WITHER
+                    && value != EntityType.ENDER_DRAGON
+                    && value != EntityType.IRON_GOLEM) {
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Cost", 0.00);
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Chance", "100%");

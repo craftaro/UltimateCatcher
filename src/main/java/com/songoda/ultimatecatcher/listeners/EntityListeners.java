@@ -186,7 +186,9 @@ public class EntityListeners implements Listener {
         double cost = configurationSection.getDouble("Mobs." + entity.getType().name() + ".Cost");
         Player player = offlinePlayer.getPlayer();
 
-        if (!configurationSection.getBoolean("Mobs." + entity.getType().name() + ".Enabled") && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
+        String val = "Mobs." + entity.getType().name() + ".Enabled";
+        if (!configurationSection.contains(val)
+                || !configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
             reject(egg, true);
             return;
