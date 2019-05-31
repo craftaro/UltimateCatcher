@@ -151,7 +151,11 @@ public class InteractListeners implements Listener {
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
-                + plugin.getLocale().getMessage("general.catcher.spawn", Methods.formatText(entity.getCustomName() != null && !plugin.getStacker().isStacked(entity) ? entity.getCustomName() : entity.getType().name().toLowerCase(), true)));
+                + plugin.getLocale().getMessage("general.catcher.spawn",
+                Methods.formatText(entity.getCustomName() != null
+                        && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
+                        && !plugin.getStacker().isStacked(entity) ? entity.getCustomName()
+                        : entity.getType().name().toLowerCase(), true)));
 
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.type", Methods.formatText(entity.getType().getName(), true)));
