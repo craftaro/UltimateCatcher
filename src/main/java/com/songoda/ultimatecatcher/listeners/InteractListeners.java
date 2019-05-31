@@ -13,9 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityBreedEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -35,15 +32,15 @@ public class InteractListeners implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST) //ToDo: Ignore canceled.
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UCI-")) {
+        if (item.getItemMeta().hasDisplayName()
+                && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "")
+                .startsWith("UCI-"))
             event.setCancelled(true);
-            return;
-        }
     }
 
     private boolean useEgg(Player player, ItemStack item) {
@@ -55,8 +52,8 @@ public class InteractListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-                if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
-            location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
+            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
+                location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
@@ -66,7 +63,7 @@ public class InteractListeners implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST) //ToDo: Ignore canceled.
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onToss(PlayerInteractEvent event) {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) return;
