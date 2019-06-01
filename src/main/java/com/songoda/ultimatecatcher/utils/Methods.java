@@ -100,6 +100,9 @@ public class Methods {
         } else if (entity instanceof Slime) {
             Slime slime = ((Slime) entity);
             jsonObject.put("size", slime.getSize());
+        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_12) && entity instanceof Parrot) {
+            Parrot parrot = ((Parrot) entity);
+            jsonObject.put("variant", parrot.getVariant().name());
         } else if (entity instanceof Horse) {
             Horse horse = ((Horse) entity);
             jsonObject.put("jump", horse.getJumpStrength());
@@ -159,6 +162,10 @@ public class Methods {
                 case WOLF:
                     Wolf wolf = (Wolf) entity;
                     wolf.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
+                    break;
+                case PARROT:
+                    Parrot parrot = (Parrot) entity;
+                    parrot.setVariant(Parrot.Variant.valueOf((String) jsonObject.get("variant")));
                     break;
                 case SHEEP:
                     Sheep sheep = (Sheep) entity;
