@@ -245,7 +245,7 @@ public class EntityListeners implements Listener {
                 + plugin.getLocale().getMessage("general.catcher.spawn",
                 Methods.formatText(entity.getCustomName() != null
                         && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                        && (plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
+                        && !(plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
                         : formatedType)));
 
         List<String> lore = new ArrayList<>();
