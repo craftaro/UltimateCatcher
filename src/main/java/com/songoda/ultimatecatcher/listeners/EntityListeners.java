@@ -76,11 +76,11 @@ public class EntityListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStartExist(CreatureSpawnEvent event) {
-        if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
+        if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG
+        && event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.DISPENSE_EGG) return;
 
         Entity entity = event.getEntity();
 
-        if (!(entity instanceof Ageable) || ((Ageable) entity).isAdult()) return;
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             if (entity.getCustomName() != null && entity.getCustomName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) entity.remove();
         }, 1L);
@@ -144,7 +144,7 @@ public class EntityListeners implements Listener {
         if (event.getEntity().getType() != EntityType.EGG) return;
 
         Egg egg = (Egg) event.getEntity();
-        if (!egg.getCustomName().equals("UCI") || egg.isOnGround()) return;
+        if (egg.getCustomName() == null || !egg.getCustomName().equals("UCI") || egg.isOnGround()) return;
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                 egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream()
