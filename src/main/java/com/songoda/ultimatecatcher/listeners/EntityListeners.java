@@ -29,6 +29,7 @@ public class EntityListeners implements Listener {
     private final UltimateCatcher plugin;
 
     private Map<UUID, UUID> eggs = new HashMap<>();
+    private Set<UUID> oncePerTick = new HashSet<>();
 
     public EntityListeners(UltimateCatcher plugin) {
         this.plugin = plugin;
@@ -51,10 +52,13 @@ public class EntityListeners implements Listener {
 
     private boolean useEgg(Player player, ItemStack item, boolean isOffHand) {
         if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UCI-")) {
-            if (isOffHand) return true;
+            if (isOffHand || oncePerTick.contains(player.getUniqueId())) return true;
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
+
+            oncePerTick.add(player.getUniqueId());
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> oncePerTick.remove(player.getUniqueId()), 1L);
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
