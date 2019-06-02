@@ -2,6 +2,9 @@
 
 general.nametag.prefix = "&8[&6UltimateCatcher&8]"
 
+general.catcher.max = "Max"
+general.catcher.baby = "Baby"
+general.catcher.adult = "Adult"
 general.catcher.spawn = "&7%type% &6Spawn Egg"
 general.catcher.name = "&6Mob Catcher"
 general.catcherinfo.type = "&7Type: &6%value%"

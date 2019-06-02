@@ -71,6 +71,7 @@ public class UltimateCatcher extends JavaPlugin {
                     && value != EntityType.ENDER_DRAGON
                     && value != EntityType.IRON_GOLEM) {
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
+                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Display Name", com.songoda.ultimatestacker.utils.Methods.formatText(value.name().toLowerCase().replace("_", " "), true));
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Cost", 0.00);
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Chance", "100%");
             }

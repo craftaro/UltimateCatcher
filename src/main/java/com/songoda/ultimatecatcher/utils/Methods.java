@@ -54,6 +54,10 @@ public class Methods {
         return item;
     }
 
+    public static String getFormattedEntityType(EntityType type) {
+        return UltimateCatcher.getInstance().getMobFile().getConfig().getString("Mobs." + type.name() + ".Display Name");
+    }
+
     public static void takeItem(Player player, int amount) {
         if (player.getGameMode() == GameMode.CREATIVE) return;
 
