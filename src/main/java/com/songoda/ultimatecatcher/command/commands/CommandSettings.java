@@ -24,11 +24,11 @@ public class CommandSettings extends AbstractCommand {
 
     @Override
     public String getSyntax() {
-        return "/uc Settings";
+        return "/uc settings";
     }
 
     @Override
     public String getDescription() {
-        return "Edit the EpicSpawners Settings.";
+        return "Edit the UltimateCatcher Settings.";
     }
 }
