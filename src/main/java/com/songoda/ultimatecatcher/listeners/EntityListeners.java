@@ -198,14 +198,13 @@ public class EntityListeners implements Listener {
             return;
         }
 
-        if (!player.hasPermission("ultimatecatcher.catch.*")
-                || !player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals
-                || !player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster) {
+        if (!(player.hasPermission("ultimatecatcher.catch.*")
+                || (player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals)
+                || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster))) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", formatedType));
             reject(egg, true);
             return;
         }
-
         int ch = Integer.parseInt(configurationSection.getString("Mobs." + entity.getType().name() + ".Chance")
                 .replace("%", ""));
         double rand = Math.random() * 100;
