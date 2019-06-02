@@ -21,6 +21,7 @@ import com.songoda.update.SongodaUpdate;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ShapelessRecipe;
@@ -112,7 +113,7 @@ public class UltimateCatcher extends JavaPlugin {
 
         // Register recipe
         if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
-            ShapelessRecipe shapelessRecipe = new ShapelessRecipe(Methods.createCatcher());
+            ShapelessRecipe shapelessRecipe = new ShapelessRecipe(new NamespacedKey(this, "catcher"), Methods.createCatcher());
             for (String item : Setting.CATCHER_RECIPE.getStringList()) {
                 String[] split = item.split(":");
                 shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
