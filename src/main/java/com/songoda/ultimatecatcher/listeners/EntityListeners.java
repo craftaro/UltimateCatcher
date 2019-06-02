@@ -56,6 +56,7 @@ public class EntityListeners implements Listener {
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
             egg.setCustomName("UCI");
+            egg.setShooter(player);
 
             oncePerTick.add(player.getUniqueId());
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> oncePerTick.remove(player.getUniqueId()), 1L);
