@@ -113,7 +113,7 @@ public class UltimateCatcher extends JavaPlugin {
 
         // Register recipe
         if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
-            ShapelessRecipe shapelessRecipe = new ShapelessRecipe(new NamespacedKey(this, "catcher"), Methods.createCatcher());
+            ShapelessRecipe shapelessRecipe = isServerVersionAtLeast(ServerVersion.V1_12) ? new ShapelessRecipe(new NamespacedKey(this, "catcher"), Methods.createCatcher()) : new ShapelessRecipe(Methods.createCatcher());
             for (String item : Setting.CATCHER_RECIPE.getStringList()) {
                 String[] split = item.split(":");
                 shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
