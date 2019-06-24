@@ -4,6 +4,9 @@ import com.songoda.ultimatecatcher.command.CommandManager;
 import com.songoda.ultimatecatcher.economy.Economy;
 import com.songoda.ultimatecatcher.economy.PlayerPointsEconomy;
 import com.songoda.ultimatecatcher.economy.VaultEconomy;
+import com.songoda.ultimatecatcher.egg.CEgg;
+import com.songoda.ultimatecatcher.egg.EggBuilder;
+import com.songoda.ultimatecatcher.egg.EggManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.stacker.Stacker;
@@ -12,9 +15,9 @@ import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
+import com.songoda.ultimatecatcher.utils.ServerVersion;
 import com.songoda.ultimatecatcher.utils.settings.Setting;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
 import com.songoda.ultimatecatcher.utils.updateModules.LocaleModule;
 import com.songoda.update.Plugin;
 import com.songoda.update.SongodaUpdate;
@@ -23,10 +26,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Arrays;
 
 public class UltimateCatcher extends JavaPlugin {
 
@@ -34,12 +40,14 @@ public class UltimateCatcher extends JavaPlugin {
     private References references;
 
     private ConfigWrapper mobFile = new ConfigWrapper(this, "", "mobs.yml");
+    private ConfigWrapper eggFile = new ConfigWrapper(this, "", "eggs.yml");
 
     private Stacker stacker;
 
     private Locale locale;
     private CommandManager commandManager;
     private SettingsManager settingsManager;
+    private EggManager eggManager;
 
     private Economy economy;
 
@@ -62,6 +70,7 @@ public class UltimateCatcher extends JavaPlugin {
         this.settingsManager.setupConfig();
 
         this.commandManager = new CommandManager(this);
+        this.eggManager = new EggManager();
 
         for (EntityType value : EntityType.values()) {
             if (value.isSpawnable()
@@ -73,12 +82,31 @@ public class UltimateCatcher extends JavaPlugin {
                     && value != EntityType.IRON_GOLEM) {
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
                 mobFile.getConfig().addDefault("Mobs." + value.name() + ".Display Name", Methods.formatText(value.name().toLowerCase().replace("_", " "), true));
-                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Cost", 0.00);
-                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Chance", "100%");
             }
         }
         mobFile.getConfig().options().copyDefaults(true);
         mobFile.saveConfig();
+
+        //Apply default eggs.
+        checkEggDefaults();
+
+        /*
+         * Register eggs into EggManager from Configuration.
+         */
+        if (eggFile.getConfig().contains("Eggs")) {
+            for (String keyName : eggFile.getConfig().getConfigurationSection("Eggs").getKeys(false)) {
+                ConfigurationSection section = eggFile.getConfig().getConfigurationSection("Eggs." + keyName);
+
+                EggBuilder eggBuilder = new EggBuilder(keyName)
+                        .setName(section.getString("Name"))
+                        .setRecipe(section.getStringList("Recipe"))
+                        .setCost(section.getDouble("Cost"))
+                        .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
+
+                eggManager.addEgg(eggBuilder.build());
+            }
+        }
+
 
         PluginManager pluginManager = Bukkit.getPluginManager();
 
@@ -113,18 +141,43 @@ public class UltimateCatcher extends JavaPlugin {
 
         // Register recipe
         if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
-            ShapelessRecipe shapelessRecipe = isServerVersionAtLeast(ServerVersion.V1_12) ? new ShapelessRecipe(new NamespacedKey(this, "catcher"), Methods.createCatcher()) : new ShapelessRecipe(Methods.createCatcher());
-            for (String item : Setting.CATCHER_RECIPE.getStringList()) {
-                String[] split = item.split(":");
-                shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
+            for (CEgg egg : eggManager.getRegisteredEggs()) {
+                ShapelessRecipe shapelessRecipe = isServerVersionAtLeast(ServerVersion.V1_12)
+                        ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
+                        egg.toItemStack()) : new ShapelessRecipe(egg.toItemStack());
+                for (String item : egg.getRecipe()) {
+                    String[] split = item.split(":");
+                    shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
+                }
+                Bukkit.addRecipe(shapelessRecipe);
             }
-            Bukkit.addRecipe(shapelessRecipe);
         }
 
         // Starting Metrics
         new Metrics(this);
 
         console.sendMessage(Methods.formatText("&a============================="));
+    }
+
+    /*
+     * Insert default key list into config.
+     */
+
+    private void checkEggDefaults() {
+        if (eggFile.getConfig().contains("Eggs")) return;
+        eggFile.getConfig().set("Eggs.Regular.Name", "&7Regular Egg");
+        eggFile.getConfig().set("Eggs.Regular.Recipe", Arrays.asList("1:EGG", "5:IRON_INGOT"));
+        eggFile.getConfig().set("Eggs.Regular.Cost", 0);
+        eggFile.getConfig().set("Eggs.Regular.Chance", "25%");
+        eggFile.getConfig().set("Eggs.Ultra.Name", "&6Ultra Egg");
+        eggFile.getConfig().set("Eggs.Ultra.Recipe", Arrays.asList("1:EGG", "5:DIAMOND"));
+        eggFile.getConfig().set("Eggs.Ultra.Cost", 15);
+        eggFile.getConfig().set("Eggs.Ultra.Chance", "60%");
+        eggFile.getConfig().set("Eggs.Insane.Name", "&5Insane Egg");
+        eggFile.getConfig().set("Eggs.Insane.Recipe", Arrays.asList("1:EGG", "5:EMERALD"));
+        eggFile.getConfig().set("Eggs.Insane.Cost", 50);
+        eggFile.getConfig().set("Eggs.Insane.Chance", "100%");
+        eggFile.saveConfig();
     }
 
     @Override
@@ -176,6 +229,10 @@ public class UltimateCatcher extends JavaPlugin {
 
     public SettingsManager getSettingsManager() {
         return settingsManager;
+    }
+
+    public EggManager getEggManager() {
+        return eggManager;
     }
 
     public References getReferences() {

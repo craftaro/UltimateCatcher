@@ -44,16 +44,6 @@ public class Methods {
         return item;
     }
 
-    public static ItemStack createCatcher() {
-        ItemStack item = new ItemStack(UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_13) ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte)56);
-
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Methods.convertToInvisibleString("UCI-") + UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.name"));
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
     public static String getFormattedEntityType(EntityType type) {
         return UltimateCatcher.getInstance().getMobFile().getConfig().getString("Mobs." + type.name() + ".Display Name");
     }

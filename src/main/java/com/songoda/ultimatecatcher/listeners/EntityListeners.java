@@ -2,6 +2,7 @@ package com.songoda.ultimatecatcher.listeners;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.economy.Economy;
+import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
@@ -51,11 +52,18 @@ public class EntityListeners implements Listener {
     }
 
     private boolean useEgg(Player player, ItemStack item, boolean isOffHand) {
-        if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UCI-")) {
+        if (item.getItemMeta().hasDisplayName()) {
+            String name = item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "");
+            if (!name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
             if (isOffHand || oncePerTick.contains(player.getUniqueId())) return true;
+
+            String[] split = name.split(";");
+
+            String eggType = split.length == 3 ? split[1] : plugin.getEggManager().getFirstEgg().getKey();
+
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
-            egg.setCustomName("UCI");
+            egg.setCustomName("UCI;" + eggType);
             egg.setShooter(player);
 
             oncePerTick.add(player.getUniqueId());
@@ -71,6 +79,7 @@ public class EntityListeners implements Listener {
             Methods.takeItem(player, 1);
             return true;
         }
+
         return false;
     }
 
@@ -82,12 +91,13 @@ public class EntityListeners implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStartExist(CreatureSpawnEvent event) {
         if (event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG
-        && event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.DISPENSE_EGG) return;
+                && event.getSpawnReason() != CreatureSpawnEvent.SpawnReason.DISPENSE_EGG) return;
 
         Entity entity = event.getEntity();
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            if (entity.getCustomName() != null && entity.getCustomName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) entity.remove();
+            if (entity.getCustomName() != null && entity.getCustomName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-"))
+                entity.remove();
         }, 1L);
     }
 
@@ -148,7 +158,13 @@ public class EntityListeners implements Listener {
         if (event.getEntity().getType() != EntityType.EGG) return;
 
         Egg egg = (Egg) event.getEntity();
-        if (egg.getCustomName() == null || !egg.getCustomName().equals("UCI") || egg.isOnGround()) return;
+        if (egg.getCustomName() == null || !egg.getCustomName().startsWith("UCI") || egg.isOnGround()) return;
+
+        String[] split = egg.getCustomName().split(";");
+
+        CEgg catcher = plugin.getEggManager().getEgg(split[1]);
+
+        if (catcher == null) return;
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                 egg.getWorld().getNearbyEntities(egg.getLocation(), 3, 3, 3).stream()
@@ -173,7 +189,7 @@ public class EntityListeners implements Listener {
         }
 
         if (entity == null) {
-            reject(egg, false);
+            reject(egg, catcher, false);
             return;
         }
 
@@ -181,19 +197,19 @@ public class EntityListeners implements Listener {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
         if (!offlinePlayer.isOnline()) {
-            reject(egg, true);
+            reject(egg, catcher, true);
             return;
         }
 
         Economy economy = plugin.getEconomy();
-        double cost = configurationSection.getDouble("Mobs." + entity.getType().name() + ".Cost");
+        double cost = catcher.getCost();
         Player player = offlinePlayer.getPlayer();
 
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)
                 || !configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", Methods.getFormattedEntityType(entity.getType())));
-            reject(egg, true);
+            reject(egg, catcher, true);
             return;
         }
 
@@ -201,11 +217,10 @@ public class EntityListeners implements Listener {
                 || (player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals)
                 || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster))) {
             player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", Methods.getFormattedEntityType(entity.getType())));
-            reject(egg, true);
+            reject(egg, catcher, true);
             return;
         }
-        int ch = Integer.parseInt(configurationSection.getString("Mobs." + entity.getType().name() + ".Chance")
-                .replace("%", ""));
+        int ch = catcher.getChance();
         double rand = Math.random() * 100;
         if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
 
@@ -219,8 +234,8 @@ public class EntityListeners implements Listener {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
             else {
-                player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.cantafford",cost, Methods.getFormattedEntityType(entity.getType())));
-                reject(egg, true);
+                player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.cantafford", cost, Methods.getFormattedEntityType(entity.getType())));
+                reject(egg, catcher, true);
                 return;
             }
         }
@@ -277,10 +292,11 @@ public class EntityListeners implements Listener {
         }
     }
 
-    private void reject(Egg egg, boolean sound) {
+    private void reject(Egg egg, CEgg catcher, boolean sound) {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9) && sound)
             egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
-        egg.getWorld().dropItem(egg.getLocation(), Methods.createCatcher());
+
+        egg.getWorld().dropItem(egg.getLocation(), catcher.toItemStack());
         egg.remove();
     }
 

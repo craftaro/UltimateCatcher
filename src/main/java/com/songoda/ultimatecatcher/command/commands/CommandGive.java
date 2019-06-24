@@ -2,7 +2,7 @@ package com.songoda.ultimatecatcher.command.commands;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.command.AbstractCommand;
-import com.songoda.ultimatecatcher.utils.Methods;
+import com.songoda.ultimatecatcher.egg.CEgg;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,14 +16,21 @@ public class CommandGive extends AbstractCommand {
 
     @Override
     protected ReturnType runCommand(UltimateCatcher instance, CommandSender sender, String... args) {
-        if (args.length != 2) return ReturnType.SYNTAX_ERROR;
+        if (args.length != 3) return ReturnType.SYNTAX_ERROR;
 
         if (Bukkit.getPlayer(args[1]) == null && !args[1].trim().toLowerCase().equals("all")) {
             sender.sendMessage("Not a player...");
-            return ReturnType.SYNTAX_ERROR;
+            return ReturnType.FAILURE;
         }
 
-        ItemStack itemStack = Methods.createCatcher();
+        CEgg catcher = instance.getEggManager().getEgg(args[2]);
+
+        if (catcher == null) {
+            sender.sendMessage("Not an egg...");
+            return ReturnType.FAILURE;
+        }
+
+        ItemStack itemStack = catcher.toItemStack();
         if (!args[1].trim().toLowerCase().equals("all")) {
             Player player = Bukkit.getOfflinePlayer(args[1]).getPlayer();
             player.getInventory().addItem(itemStack);
@@ -42,11 +49,15 @@ public class CommandGive extends AbstractCommand {
 
     @Override
     public String getSyntax() {
-        return "/uc give <player/all>";
+        StringBuilder keys = new StringBuilder();
+        for (CEgg egg : UltimateCatcher.getInstance().getEggManager().getRegisteredEggs()) {
+            keys.append("/").append(egg.getKey());
+        }
+        return "/uc give <player/all> <" + keys.substring(1) + ">";
     }
 
     @Override
     public String getDescription() {
-        return "Give a catcher.";
+        return "Give an egg.";
     }
 }
