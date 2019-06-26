@@ -188,7 +188,7 @@ public class EntityListeners implements Listener {
             }
         }
 
-        if (entity == null) {
+        if (entity == null || entity.getType() == EntityType.PLAYER) {
             reject(egg, catcher, false);
             return;
         }
