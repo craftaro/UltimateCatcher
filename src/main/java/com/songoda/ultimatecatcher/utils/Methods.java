@@ -81,7 +81,7 @@ public class Methods {
         } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Cat) {
             Cat cat = ((Cat) entity);
             jsonObject.put("color", cat.getCollarColor().name());
-            jsonObject.put("type", cat.getCatType().name());
+            jsonObject.put("catType", cat.getCatType().name());
         } else if (entity instanceof Wolf) {
             Wolf wolf = ((Wolf) entity);
             jsonObject.put("color", wolf.getCollarColor().name());
@@ -151,7 +151,7 @@ public class Methods {
                 case CAT:
                     Cat cat = (Cat) entity;
                     cat.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
-                    cat.setCatType(Cat.Type.valueOf((String) jsonObject.get("type")));
+                    cat.setCatType(Cat.Type.valueOf((String) jsonObject.get("catType")));
                     break;
                 case WOLF:
                     Wolf wolf = (Wolf) entity;
@@ -179,7 +179,7 @@ public class Methods {
                     break;
                 case SLIME:
                     Slime slime = (Slime) entity;
-                    slime.setSize((int) jsonObject.get("size"));
+                    slime.setSize(Math.toIntExact((long)jsonObject.get("size")));
                     break;
                 case HORSE:
                     Horse horse = (Horse) entity;

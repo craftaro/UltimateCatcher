@@ -75,7 +75,7 @@ public class CEgg {
 
     public void setChance(int chance) {
         if (chance > 100 || chance < 0) {
-            chance = 0;
+            this.chance = 0;
             return;
         }
         this.chance = chance;
