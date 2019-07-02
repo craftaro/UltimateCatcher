@@ -245,7 +245,7 @@ public class EntityListeners implements Listener {
         ItemStack item;
 
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_13)) {
-            Material material = Material.matchMaterial(entity.getType() + "_SPAWN_EGG");
+            Material material = Material.matchMaterial(entity.getType().name().replace("MUSHROOM_COW", "MOOSHROOM") + "_SPAWN_EGG");
             if (material == null) return;
             item = new ItemStack(material);
         } else {
