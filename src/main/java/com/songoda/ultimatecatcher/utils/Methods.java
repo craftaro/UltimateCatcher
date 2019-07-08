@@ -88,6 +88,8 @@ public class Methods {
         } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_11) && entity instanceof Llama) {
             Llama llama = ((Llama) entity);
             jsonObject.put("color", llama.getColor().name());
+            if (llama.getInventory().getDecor() != null)
+                jsonObject.put("decor", llama.getInventory().getDecor().getType().name());
         } else if (entity instanceof Villager) {
             Villager villager = ((Villager) entity);
             jsonObject.put("profession", villager.getProfession().name());
@@ -172,6 +174,11 @@ public class Methods {
                 case LLAMA:
                     Llama llama = (Llama) entity;
                     llama.setColor(Llama.Color.valueOf((String) jsonObject.get("color")));
+
+                    Object decor = jsonObject.get("decor");
+
+                    if (decor != null)
+                        llama.getInventory().setDecor(new ItemStack(Material.valueOf((String)decor)));
                     break;
                 case VILLAGER:
                     Villager villager = (Villager) entity;
