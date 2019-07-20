@@ -214,7 +214,8 @@ public class EntityListeners implements Listener {
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)
                 || !configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
-            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", Methods.getFormattedEntityType(entity.getType())));
+            plugin.getLocale().getMessage("event.catch.notenabled")
+                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType())).getMessage();
             reject(egg, catcher, true);
             return;
         }
@@ -222,7 +223,11 @@ public class EntityListeners implements Listener {
         if (!(player.hasPermission("ultimatecatcher.catch.*")
                 || (player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name()) && entity instanceof Animals)
                 || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()) && entity instanceof Monster))) {
-            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.notenabled", Methods.getFormattedEntityType(entity.getType())));
+
+            plugin.getLocale().getMessage("event.catch.notenabled")
+                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                    .sendPrefixedMessage(player);
+
             reject(egg, catcher, true);
             return;
         }
@@ -232,7 +237,11 @@ public class EntityListeners implements Listener {
 
             if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
                 egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
-            player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.failed", Methods.getFormattedEntityType(entity.getType())));
+
+            plugin.getLocale().getMessage("event.catch.failed")
+                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                    .sendPrefixedMessage(player);
+
             return;
         }
 
@@ -240,7 +249,12 @@ public class EntityListeners implements Listener {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
             else {
-                player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.cantafford", cost, Methods.getFormattedEntityType(entity.getType())));
+
+                plugin.getLocale().getMessage("event.catch.cantafford")
+                        .processPlaceholder("amount", cost)
+                        .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                        .sendPrefixedMessage(player);
+
                 reject(egg, catcher, true);
                 return;
             }
@@ -265,30 +279,36 @@ public class EntityListeners implements Listener {
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
-                + plugin.getLocale().getMessage("general.catcher.spawn",
+                + plugin.getLocale().getMessage("general.catcher.spawn")
+                        .processPlaceholder("type",
                 Methods.formatText(entity.getCustomName() != null
                         && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
                         && !(plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
-                        : Methods.getFormattedEntityType(entity.getType()))));
+                        : Methods.getFormattedEntityType(entity.getType()))).getMessage());
 
         List<String> lore = new ArrayList<>();
-        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type", Methods.getFormattedEntityType(entity.getType())));
+        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type")
+                .processPlaceholder("value", Methods.getFormattedEntityType(entity.getType()))
+                .getMessage());
 
         double health = ((LivingEntity) entity).getHealth();
         double max = ((LivingEntity) entity).getMaxHealth();
 
-        lore.add(plugin.getLocale().getMessage("general.catcherinfo.health", (health == max ? plugin.getLocale().getMessage("general.catcher.max") : health + "/" + max)));
+        lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
+                .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max") : health + "/" + max)).getMessage());
 
         if (entity instanceof Ageable)
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age", (((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult") : plugin.getLocale().getMessage("general.catcher.baby"))));
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult") : plugin.getLocale().getMessage("general.catcher.baby")).getMessage());
 
         if (entity instanceof Tameable && ((Tameable) entity).isTamed())
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed"));
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
 
         meta.setLore(lore);
         item.setItemMeta(meta);
 
-        player.sendMessage(plugin.getReferences().getPrefix() + plugin.getLocale().getMessage("event.catch.success", Methods.getFormattedEntityType(entity.getType())));
+        plugin.getLocale().getMessage("event.catch.success")
+                .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                .sendPrefixedMessage(player);
 
         entity.getWorld().dropItem(entity.getLocation(), item);
 

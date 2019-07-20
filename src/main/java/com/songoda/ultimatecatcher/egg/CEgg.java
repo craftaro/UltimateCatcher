@@ -32,8 +32,11 @@ public class CEgg {
 
         // ToDo: Translate this.
         List<String> lore = new ArrayList<>();
-        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorecost", cost));
-        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorechance", chance));
+        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorecost")
+                .processPlaceholder("cost", cost).getMessage());
+
+        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorechance")
+                .processPlaceholder("chance", chance).getMessage());
         meta.setLore(lore);
 
         item.setItemMeta(meta);

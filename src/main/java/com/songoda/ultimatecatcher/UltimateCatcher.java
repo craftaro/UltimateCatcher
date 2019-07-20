@@ -17,6 +17,7 @@ import com.songoda.ultimatecatcher.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.locale.Locale;
 import com.songoda.ultimatecatcher.utils.settings.Setting;
 import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
 import com.songoda.ultimatecatcher.utils.updateModules.LocaleModule;
@@ -38,7 +39,6 @@ import java.util.Arrays;
 public class UltimateCatcher extends JavaPlugin {
 
     private static UltimateCatcher INSTANCE;
-    private References references;
 
     private ConfigWrapper mobFile = new ConfigWrapper(this, "", "mobs.yml");
     private ConfigWrapper eggFile = new ConfigWrapper(this, "", "eggs.yml");
@@ -117,20 +117,16 @@ public class UltimateCatcher extends JavaPlugin {
         pluginManager.registerEvents(new EntityListeners(this), this);
         pluginManager.registerEvents(new DispenserListeners(), this);
 
-        String langMode = getConfig().getString("System.Language Mode");
-        Locale.init(this);
-        Locale.saveDefaultLocale("en_US");
-
-        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
+        new Locale(this, "en_US");
+        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode"));
 
         //Running Songoda Updater
         Plugin plugin = new Plugin(this, 51);
         plugin.addModule(new LocaleModule());
         SongodaUpdate.load(plugin);
 
-        this.references = new References();
-
         EggTrackingTask.startTask(this);
+
         // Setup Economy
         if (Setting.VAULT_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("Vault"))
             this.economy = new VaultEconomy();
@@ -191,11 +187,9 @@ public class UltimateCatcher extends JavaPlugin {
     }
 
     public void reload() {
-        String langMode = getConfig().getString("System.Language Mode");
         this.mobFile = new ConfigWrapper(this, "", "mobs.yml");
-        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode", langMode));
+        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode"));
         this.locale.reloadMessages();
-        this.references = new References();
         this.settingsManager.reloadConfig();
     }
 
@@ -235,9 +229,6 @@ public class UltimateCatcher extends JavaPlugin {
         return eggManager;
     }
 
-    public References getReferences() {
-        return references;
-    }
 
     public ConfigWrapper getMobFile() {
         return mobFile;

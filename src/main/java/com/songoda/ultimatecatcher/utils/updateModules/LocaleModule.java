@@ -1,6 +1,6 @@
 package com.songoda.ultimatecatcher.utils.updateModules;
 
-import com.songoda.ultimatecatcher.Locale;
+import com.songoda.ultimatecatcher.utils.locale.Locale;
 import com.songoda.update.Module;
 import com.songoda.update.Plugin;
 import org.json.simple.JSONArray;
@@ -22,7 +22,7 @@ public class LocaleModule implements Module {
 
                 if (file.get("type").equals("locale")) {
                     InputStream in = new URL((String) file.get("link")).openStream();
-                    Locale.saveDefaultLocale(in, (String) file.get("name"));
+                    Locale.saveLocale(in, (String) file.get("name"));
                 }
             }
         } catch (IOException e) {
