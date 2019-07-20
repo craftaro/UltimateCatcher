@@ -3,6 +3,7 @@ package com.songoda.ultimatecatcher;
 import com.songoda.ultimatecatcher.command.CommandManager;
 import com.songoda.ultimatecatcher.economy.Economy;
 import com.songoda.ultimatecatcher.economy.PlayerPointsEconomy;
+import com.songoda.ultimatecatcher.economy.ReserveEconomy;
 import com.songoda.ultimatecatcher.economy.VaultEconomy;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.egg.EggBuilder;
@@ -130,14 +131,13 @@ public class UltimateCatcher extends JavaPlugin {
         this.references = new References();
 
         EggTrackingTask.startTask(this);
-
         // Setup Economy
-        if (Setting.VAULT_ECONOMY.getBoolean()
-                && getServer().getPluginManager().getPlugin("Vault") != null)
-            this.economy = new VaultEconomy(this);
-        else if (Setting.PLAYER_POINTS_ECONOMY.getBoolean()
-                && getServer().getPluginManager().getPlugin("PlayerPoints") != null)
-            this.economy = new PlayerPointsEconomy(this);
+        if (Setting.VAULT_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("Vault"))
+            this.economy = new VaultEconomy();
+        else if (Setting.RESERVE_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("Reserve"))
+            this.economy = new ReserveEconomy();
+        else if (Setting.PLAYER_POINTS_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("PlayerPoints"))
+            this.economy = new PlayerPointsEconomy();
 
         // Register recipe
         if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
