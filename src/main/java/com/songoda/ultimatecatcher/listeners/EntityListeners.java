@@ -291,7 +291,7 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("value", Methods.getFormattedEntityType(entity.getType()))
                 .getMessage());
 
-        double health = ((LivingEntity) entity).getHealth();
+        double health = Math.round(((LivingEntity) entity).getHealth() * 100.0) / 100.0;
         double max = ((LivingEntity) entity).getMaxHealth();
 
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
