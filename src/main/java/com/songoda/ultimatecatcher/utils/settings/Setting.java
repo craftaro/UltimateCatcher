@@ -11,6 +11,10 @@ public enum Setting {
     USE_CATCHER_RECIPE("Main.Use Catcher Recipe", true,
             "Should egg recipes be enabled."),
 
+    REJECT_TAMED("Main.Reject Tamed Entities That Are Not Yours", true,
+            "Should players attempting to tame another players tamed entity",
+            "be rejected?"),
+
     VAULT_ECONOMY("Economy.Use Vault Economy", true,
             "Should Vault be used?"),
 

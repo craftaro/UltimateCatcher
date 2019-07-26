@@ -6,6 +6,7 @@ import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
+import com.songoda.ultimatecatcher.utils.settings.Setting;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -245,6 +246,16 @@ public class EntityListeners implements Listener {
             return;
         }
 
+        if (entity instanceof Tameable
+                && Setting.REJECT_TAMED.getBoolean()
+                && ((Tameable) entity).isTamed()
+                && ((Tameable) entity).getOwner().getUniqueId() != player.getUniqueId()) {
+            plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
+            reject(egg, catcher, true);
+            return;
+
+        }
+
         if (economy != null && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
@@ -280,11 +291,11 @@ public class EntityListeners implements Listener {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn")
-                        .processPlaceholder("type",
-                Methods.formatText(entity.getCustomName() != null
-                        && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                        && !(plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
-                        : Methods.getFormattedEntityType(entity.getType()))).getMessage());
+                .processPlaceholder("type",
+                        Methods.formatText(entity.getCustomName() != null
+                                && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
+                                && !(plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
+                                : Methods.getFormattedEntityType(entity.getType()))).getMessage());
 
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.type")
