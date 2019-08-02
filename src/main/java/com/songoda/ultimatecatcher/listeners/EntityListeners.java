@@ -321,7 +321,7 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
                 .sendPrefixedMessage(player);
 
-        entity.getWorld().dropItem(entity.getLocation(), item);
+        entity.getWorld().dropItem(event.getEntity().getLocation(), item);
 
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
             entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
