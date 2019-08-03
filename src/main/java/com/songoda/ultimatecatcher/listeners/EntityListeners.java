@@ -213,8 +213,11 @@ public class EntityListeners implements Listener {
         Player player = offlinePlayer.getPlayer();
 
         String val = "Mobs." + entity.getType().name() + ".Enabled";
-        if (!configurationSection.contains(val)
-                || !configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
+        if (!configurationSection.contains(val)) {
+            reject(egg, catcher, true);
+            return;
+        }
+        if (!configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
             plugin.getLocale().getMessage("event.catch.notenabled")
                     .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType())).getMessage();
             reject(egg, catcher, true);
