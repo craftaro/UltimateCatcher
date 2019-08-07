@@ -203,7 +203,9 @@ public class EntityListeners implements Listener {
         ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
-        if (!offlinePlayer.isOnline()) {
+        String formatted = Methods.getFormattedEntityType(entity.getType());
+
+        if (!offlinePlayer.isOnline() || formatted == null) {
             reject(egg, catcher, true);
             return;
         }
@@ -212,11 +214,12 @@ public class EntityListeners implements Listener {
         double cost = catcher.getCost();
         Player player = offlinePlayer.getPlayer();
 
+
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)
                 || !configurationSection.getBoolean(val) && !player.hasPermission("ultimatecatcher.bypass.disabled")) {
             plugin.getLocale().getMessage("event.catch.notenabled")
-                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType())).getMessage();
+                    .processPlaceholder("type", formatted).getMessage();
             reject(egg, catcher, true);
             return;
         }

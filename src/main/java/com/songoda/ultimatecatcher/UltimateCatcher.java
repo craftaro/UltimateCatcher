@@ -117,6 +117,7 @@ public class UltimateCatcher extends JavaPlugin {
         pluginManager.registerEvents(new EntityListeners(this), this);
         pluginManager.registerEvents(new DispenserListeners(), this);
 
+        // Setup language
         new Locale(this, "en_US");
         this.locale = Locale.getLocale(getConfig().getString("System.Language Mode"));
 
