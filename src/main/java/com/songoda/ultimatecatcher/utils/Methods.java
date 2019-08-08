@@ -11,6 +11,7 @@ import org.json.simple.parser.ParseException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class Methods {
 
@@ -70,8 +71,12 @@ public class Methods {
             jsonObject.put("name", entity.getCustomName());
         jsonObject.put("health", entity.getHealth());
 
-        if (entity instanceof Tameable && ((Tameable) entity).isTamed())
+        if (entity instanceof Tameable && ((Tameable) entity).isTamed()) {
             jsonObject.put("tamed", true);
+            AnimalTamer animalTamer = ((Tameable) entity).getOwner();
+            if (animalTamer != null)
+                jsonObject.put("owner", animalTamer.getUniqueId().toString());
+        }
 
         if (entity instanceof Sheep) {
             Sheep sheep = ((Sheep) entity);
@@ -143,8 +148,12 @@ public class Methods {
             if (name != null)
                 entity.setCustomName((String) name);
 
-            if (tamed != null)
+            if (tamed != null) {
                 ((Tameable) entity).setTamed((boolean) tamed);
+                Object owner = jsonObject.get("owner");
+                if (owner != null)
+                    ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString((String)owner)));
+            }
 
             double health = (double) jsonObject.get("health");
             entity.setHealth(health > entity.getMaxHealth() ? entity.getMaxHealth() : health);
@@ -178,7 +187,7 @@ public class Methods {
                     Object decor = jsonObject.get("decor");
 
                     if (decor != null)
-                        llama.getInventory().setDecor(new ItemStack(Material.valueOf((String)decor)));
+                        llama.getInventory().setDecor(new ItemStack(Material.valueOf((String) decor)));
                     break;
                 case VILLAGER:
                     Villager villager = (Villager) entity;
@@ -186,24 +195,24 @@ public class Methods {
                     break;
                 case SLIME:
                     Slime slime = (Slime) entity;
-                    slime.setSize(Math.toIntExact((long)jsonObject.get("size")));
+                    slime.setSize(Math.toIntExact((long) jsonObject.get("size")));
                     break;
                 case HORSE:
                     Horse horse = (Horse) entity;
                     horse.setColor(Horse.Color.valueOf((String) jsonObject.get("color")));
                     horse.setStyle(Horse.Style.valueOf((String) jsonObject.get("style")));
-                    horse.setJumpStrength((double)jsonObject.get("jump"));
-                    horse.setDomestication(Math.toIntExact((long)jsonObject.get("domestication")));
-                    horse.setMaxDomestication(Math.toIntExact((long)jsonObject.get("maxDomestication")));
+                    horse.setJumpStrength((double) jsonObject.get("jump"));
+                    horse.setDomestication(Math.toIntExact((long) jsonObject.get("domestication")));
+                    horse.setMaxDomestication(Math.toIntExact((long) jsonObject.get("maxDomestication")));
 
                     Object armor = jsonObject.get("armor");
                     Object saddle = jsonObject.get("saddle");
 
                     if (armor != null)
-                        horse.getInventory().setArmor(new ItemStack(Material.valueOf((String)armor)));
+                        horse.getInventory().setArmor(new ItemStack(Material.valueOf((String) armor)));
 
                     if (saddle != null)
-                        horse.getInventory().setSaddle(new ItemStack(Material.valueOf((String)saddle)));
+                        horse.getInventory().setSaddle(new ItemStack(Material.valueOf((String) saddle)));
 
                     break;
                 case PANDA:
