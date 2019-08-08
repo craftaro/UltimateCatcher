@@ -4,14 +4,18 @@ import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.command.AbstractCommand;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommandGive extends AbstractCommand {
 
     public CommandGive(AbstractCommand abstractCommand) {
-        super("give", abstractCommand, false);
+        super(abstractCommand, false, "give");
     }
 
     @Override
@@ -40,6 +44,20 @@ public class CommandGive extends AbstractCommand {
             }
         }
         return ReturnType.SUCCESS;
+    }
+
+    @Override
+    protected List<String> onTab(UltimateCatcher instance, CommandSender sender, String... args) {
+        List<String> tab = new ArrayList<>();
+
+        if (args.length == 2) {
+            tab.add("all");
+            for (Player player : Bukkit.getOnlinePlayers()) tab.add(player.getName());
+        } else if (args.length == 3) {
+            for (CEgg egg : UltimateCatcher.getInstance().getEggManager().getRegisteredEggs()) tab.add(egg.getKey());
+        }
+
+        return tab;
     }
 
     @Override

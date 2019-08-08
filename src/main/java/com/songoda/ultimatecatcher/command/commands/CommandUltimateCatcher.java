@@ -5,10 +5,12 @@ import com.songoda.ultimatecatcher.command.AbstractCommand;
 import com.songoda.ultimatecatcher.utils.Methods;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
+
 public class CommandUltimateCatcher extends AbstractCommand {
 
     public CommandUltimateCatcher() {
-        super("UltimateCatcher", null, false);
+        super(null, false, "UltimateCatcher");
     }
 
     @Override
@@ -25,6 +27,11 @@ public class CommandUltimateCatcher extends AbstractCommand {
         sender.sendMessage("");
 
         return ReturnType.SUCCESS;
+    }
+
+    @Override
+    protected List<String> onTab(UltimateCatcher instance, CommandSender sender, String... args) {
+        return null;
     }
 
     @Override
