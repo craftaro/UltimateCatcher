@@ -16,7 +16,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -87,11 +86,6 @@ public class EntityListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void InventorySnotch(InventoryPickupItemEvent event) {
-        if (eggs.containsKey(event.getItem().getUniqueId())) event.setCancelled(true);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEggPoke(EntityPickupItemEvent event) {
         if (eggs.containsKey(event.getItem().getUniqueId())) event.setCancelled(true);
     }
 
@@ -347,4 +341,8 @@ public class EntityListeners implements Listener {
         egg.remove();
     }
 
+
+    public Map<UUID, UUID> getEggs() {
+        return eggs;
+    }
 }

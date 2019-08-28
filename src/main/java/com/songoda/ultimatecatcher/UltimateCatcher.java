@@ -10,6 +10,7 @@ import com.songoda.ultimatecatcher.egg.EggBuilder;
 import com.songoda.ultimatecatcher.egg.EggManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
+import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
 import com.songoda.ultimatecatcher.stacker.Stacker;
 import com.songoda.ultimatecatcher.stacker.UltimateStacker;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
@@ -49,6 +50,7 @@ public class UltimateCatcher extends JavaPlugin {
     private CommandManager commandManager;
     private SettingsManager settingsManager;
     private EggManager eggManager;
+    private EntityListeners entityListeners;
 
     private Economy economy;
 
@@ -114,8 +116,11 @@ public class UltimateCatcher extends JavaPlugin {
         if (pluginManager.isPluginEnabled("UltimateStacker"))
             stacker = new UltimateStacker();
 
-        pluginManager.registerEvents(new EntityListeners(this), this);
+        entityListeners = new EntityListeners(this);
+
+        pluginManager.registerEvents(entityListeners, this);
         pluginManager.registerEvents(new DispenserListeners(), this);
+        if (isServerVersionAtLeast(ServerVersion.V1_12)) pluginManager.registerEvents(new EntityPickupListeners(), this);
 
         // Setup language
         new Locale(this, "en_US");
@@ -230,6 +235,9 @@ public class UltimateCatcher extends JavaPlugin {
         return eggManager;
     }
 
+    public EntityListeners getEntityListeners() {
+        return entityListeners;
+    }
 
     public ConfigWrapper getMobFile() {
         return mobFile;
