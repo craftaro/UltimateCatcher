@@ -12,6 +12,7 @@ general.catcherinfo.type = "&7Type: &6%value%"
 general.catcherinfo.health = "&7Health: &6%value%"
 general.catcherinfo.age = "&7Age: &6%value%"
 general.catcherinfo.tamed = "&6Tamed"
+general.catcherinfo.trusted = "&6Trusted"
 
 #Event Messages
 

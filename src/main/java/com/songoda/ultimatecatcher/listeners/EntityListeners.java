@@ -7,8 +7,12 @@ import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
 import com.songoda.ultimatecatcher.utils.settings.Setting;
+import net.minecraft.server.v1_14_R1.EntityFox;
+import net.minecraft.server.v1_14_R1.GameProfileSerializer;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -260,6 +264,15 @@ public class EntityListeners implements Listener {
 
         }
 
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)
+                && !isPlayerTrusted((Fox) entity, player)
+                && !isFoxWild((Fox) entity, player)
+                && Setting.REJECT_TAMED.getBoolean()) {
+            plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
+            reject(egg, catcher, true);
+            return;
+        }
+
         if (economy != null && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
             if (economy.hasBalance(player, cost))
                 economy.withdrawBalance(player, cost);
@@ -318,6 +331,10 @@ public class EntityListeners implements Listener {
         if (entity instanceof Tameable && ((Tameable) entity).isTamed())
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
 
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)
+                && isPlayerTrusted((Fox) entity, player) || !isFoxWild((Fox) entity, player))
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+
         meta.setLore(lore);
         item.setItemMeta(meta);
 
@@ -344,5 +361,25 @@ public class EntityListeners implements Listener {
 
     public Map<UUID, UUID> getEggs() {
         return eggs;
+    }
+
+    private boolean isPlayerTrusted(Fox fox, Player player) {
+        // Foxes are only in 1.14, no reflection needed.
+        if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
+        EntityFox entityFox = ((CraftFox) fox).getHandle();
+        NBTTagCompound foxNBT = new NBTTagCompound();
+        entityFox.b(foxNBT);
+        if (foxNBT.getList("TrustedUUIDs", 10).contains(GameProfileSerializer.a(player.getUniqueId()))) return true;
+
+        return false;
+    }
+
+    private boolean isFoxWild(Fox fox, Player player) {
+        if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
+        EntityFox entityFox = ((CraftFox) fox).getHandle();
+        NBTTagCompound foxNBT = new NBTTagCompound();
+        entityFox.b(foxNBT);
+        if (foxNBT.getList("TrustedUUIDs", 10) == null || foxNBT.getList("TrustedUUIDs", 10).isEmpty()) return true;
+        return false;
     }
 }

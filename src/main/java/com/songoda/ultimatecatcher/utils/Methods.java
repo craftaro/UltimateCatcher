@@ -1,7 +1,11 @@
 package com.songoda.ultimatecatcher.utils;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
+import net.minecraft.server.v1_14_R1.EntityFox;
+import net.minecraft.server.v1_14_R1.GameProfileSerializer;
+import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -119,6 +123,14 @@ public class Methods {
             Panda panda = ((Panda) entity);
             jsonObject.put("geneHidden", panda.getHiddenGene().name());
             jsonObject.put("geneMain", panda.getMainGene().name());
+        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Fox) {
+            Fox fox = ((Fox) entity);
+            EntityFox entityFox = ((CraftFox) fox).getHandle();
+            NBTTagCompound foxNBT = new NBTTagCompound();
+            entityFox.b(foxNBT);
+            UUID owner = GameProfileSerializer.b(foxNBT.getList("TrustedUUIDs", 10).getCompound(0));
+            jsonObject.put("trusted", true);
+            jsonObject.put("owner", owner.toString());
         }
 
         return jsonObject.toJSONString();
@@ -219,6 +231,19 @@ public class Methods {
                     Panda panda = (Panda) entity;
                     panda.setHiddenGene(Panda.Gene.valueOf((String) jsonObject.get("geneHidden")));
                     panda.setMainGene(Panda.Gene.valueOf((String) jsonObject.get("geneMain")));
+                    break;
+                case FOX:
+                    Fox fox = (Fox) entity;
+                    EntityFox entityFox = ((CraftFox) fox).getHandle();
+                    NBTTagCompound foxNBT = new NBTTagCompound();
+                    entityFox.b(foxNBT);
+                    NBTTagCompound trustedCompound = new NBTTagCompound();
+                    Object owner = jsonObject.get("owner");
+                    UUID ownerUUID = UUID.fromString((String) owner);
+                    trustedCompound.setLong("L", ownerUUID.getLeastSignificantBits());
+                    trustedCompound.setLong("M", ownerUUID.getMostSignificantBits());
+                    foxNBT.getList("TrustedUUIDs", 10).add(trustedCompound);
+                    entityFox.a(foxNBT);
                     break;
             }
 
