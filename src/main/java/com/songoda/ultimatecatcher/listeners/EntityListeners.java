@@ -264,13 +264,14 @@ public class EntityListeners implements Listener {
 
         }
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)
-                && !isPlayerTrusted((Fox) entity, player)
-                && !isFoxWild((Fox) entity, player)
-                && Setting.REJECT_TAMED.getBoolean()) {
-            plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
-            reject(egg, catcher, true);
-            return;
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)) {
+            if (!isPlayerTrusted(entity, player)
+                    && !isFoxWild(entity)
+                    && Setting.REJECT_TAMED.getBoolean()) {
+                plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
+                reject(egg, catcher, true);
+                return;
+            }
         }
 
         if (economy != null && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
@@ -331,9 +332,10 @@ public class EntityListeners implements Listener {
         if (entity instanceof Tameable && ((Tameable) entity).isTamed())
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)
-                && isPlayerTrusted((Fox) entity, player) || !isFoxWild((Fox) entity, player))
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)) {
+            if (isPlayerTrusted(entity, player) || !isFoxWild(entity))
+                lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+        }
 
         meta.setLore(lore);
         item.setItemMeta(meta);
@@ -363,8 +365,10 @@ public class EntityListeners implements Listener {
         return eggs;
     }
 
-    private boolean isPlayerTrusted(Fox fox, Player player) {
+    private boolean isPlayerTrusted(Entity entity, Player player) {
         // Foxes are only in 1.14, no reflection needed.
+        if (!(entity instanceof Fox)) return false;
+        Fox fox = (Fox) entity;
         if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
         EntityFox entityFox = ((CraftFox) fox).getHandle();
         NBTTagCompound foxNBT = new NBTTagCompound();
@@ -374,7 +378,9 @@ public class EntityListeners implements Listener {
         return false;
     }
 
-    private boolean isFoxWild(Fox fox, Player player) {
+    private boolean isFoxWild(Entity entity) {
+        if (!(entity instanceof Fox)) return false;
+        Fox fox = (Fox) entity;
         if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
         EntityFox entityFox = ((CraftFox) fox).getHandle();
         NBTTagCompound foxNBT = new NBTTagCompound();
