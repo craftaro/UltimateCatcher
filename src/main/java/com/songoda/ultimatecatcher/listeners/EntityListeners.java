@@ -268,6 +268,7 @@ public class EntityListeners implements Listener {
             if (!isPlayerTrusted(entity, player)
                     && !isFoxWild(entity)
                     && Setting.REJECT_TAMED.getBoolean()) {
+                Bukkit.broadcastMessage("Its a fox issue");
                 plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
                 reject(egg, catcher, true);
                 return;
@@ -379,7 +380,7 @@ public class EntityListeners implements Listener {
     }
 
     private boolean isFoxWild(Entity entity) {
-        if (!(entity instanceof Fox)) return false;
+        if (!(entity instanceof Fox)) return true;
         Fox fox = (Fox) entity;
         if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
         EntityFox entityFox = ((CraftFox) fox).getHandle();
