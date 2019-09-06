@@ -1,58 +1,51 @@
 package com.songoda.ultimatecatcher;
 
-import com.songoda.ultimatecatcher.command.CommandManager;
-import com.songoda.ultimatecatcher.economy.Economy;
-import com.songoda.ultimatecatcher.economy.PlayerPointsEconomy;
-import com.songoda.ultimatecatcher.economy.ReserveEconomy;
-import com.songoda.ultimatecatcher.economy.VaultEconomy;
+import com.songoda.core.SongodaCore;
+import com.songoda.core.SongodaPlugin;
+import com.songoda.core.commands.CommandManager;
+import com.songoda.core.compatibility.LegacyMaterials;
+import com.songoda.core.configuration.Config;
+import com.songoda.core.gui.GuiManager;
+import com.songoda.core.hooks.EconomyManager;
+import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.ultimatecatcher.commands.CommandGive;
+import com.songoda.ultimatecatcher.commands.CommandReload;
+import com.songoda.ultimatecatcher.commands.CommandSettings;
+import com.songoda.ultimatecatcher.commands.CommandUltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.egg.EggBuilder;
 import com.songoda.ultimatecatcher.egg.EggManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
-import com.songoda.ultimatecatcher.stacker.Stacker;
-import com.songoda.ultimatecatcher.stacker.UltimateStacker;
+import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
-import com.songoda.ultimatecatcher.utils.ConfigWrapper;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.Metrics;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
-import com.songoda.ultimatecatcher.utils.locale.Locale;
-import com.songoda.ultimatecatcher.utils.settings.Setting;
-import com.songoda.ultimatecatcher.utils.settings.SettingsManager;
-import com.songoda.ultimatecatcher.utils.updateModules.LocaleModule;
-import com.songoda.update.Plugin;
-import com.songoda.update.SongodaUpdate;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
+import java.util.List;
 
-public class UltimateCatcher extends JavaPlugin {
+public class UltimateCatcher extends SongodaPlugin {
 
     private static UltimateCatcher INSTANCE;
 
-    private ConfigWrapper mobFile = new ConfigWrapper(this, "", "mobs.yml");
-    private ConfigWrapper eggFile = new ConfigWrapper(this, "", "eggs.yml");
+    private Config mobConfig = new Config(this, "mobs.yml");
+    private Config eggConfig = new Config(this, "eggs.yml");
 
-    private Stacker stacker;
-
-    private Locale locale;
-    private CommandManager commandManager;
-    private SettingsManager settingsManager;
+    private GuiManager guiManager = new GuiManager(this);
     private EggManager eggManager;
+    private CommandManager commandManager;
     private EntityListeners entityListeners;
-
-    private Economy economy;
 
     private ServerVersion serverVersion = ServerVersion.fromPackageName(Bukkit.getServer().getClass().getPackage().getName());
 
@@ -61,88 +54,55 @@ public class UltimateCatcher extends JavaPlugin {
     }
 
     @Override
-    public void onEnable() {
+    public void onPluginLoad() {
         INSTANCE = this;
+    }
 
-        ConsoleCommandSender console = Bukkit.getConsoleSender();
-        console.sendMessage(Methods.formatText("&a============================="));
-        console.sendMessage(Methods.formatText("&7UltimateCatcher " + this.getDescription().getVersion() + " by &5Songoda <3&7!"));
-        console.sendMessage(Methods.formatText("&7Action: &aEnabling&7..."));
+    @Override
+    public void onPluginEnable() {
+        // Run Songoda Updater
+        SongodaCore.registerPlugin(this, 51, LegacyMaterials.EGG);
 
-        this.settingsManager = new SettingsManager(this);
-        this.settingsManager.setupConfig();
+        // Load Economy
+        EconomyManager.load();
 
+        // Setup Config
+        Settings.setupConfig();
+        this.setLocale(Settings.LANGUGE_MODE.getString(), false);
+
+        // Set economy preference
+        EconomyManager.getManager().setPreferredHook(Settings.ECONOMY_PLUGIN.getString());
+
+        // Load entity stack manager.
+        EntityStackerManager.load();
+
+        // Register commands
         this.commandManager = new CommandManager(this);
+        this.commandManager.addCommand(new CommandUltimateCatcher(this))
+                .addSubCommands(
+                        new CommandGive(this),
+                        new CommandSettings(this),
+                        new CommandReload(this)
+                );
+
         this.eggManager = new EggManager();
 
-        for (EntityType value : EntityType.values()) {
-            if (value.isSpawnable()
-                    && value.isAlive()
-                    && !value.toString().contains("ARMOR")
-                    && value != EntityType.PLAYER
-                    && value != EntityType.WITHER
-                    && value != EntityType.ENDER_DRAGON
-                    && value != EntityType.IRON_GOLEM) {
-                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Enabled", true);
-                mobFile.getConfig().addDefault("Mobs." + value.name() + ".Display Name", Methods.formatText(value.name().toLowerCase().replace("_", " "), true));
-            }
-        }
-        mobFile.getConfig().options().copyDefaults(true);
-        mobFile.saveConfig();
-
-        //Apply default eggs.
-        checkEggDefaults();
-
-        /*
-         * Register eggs into EggManager from Configuration.
-         */
-        if (eggFile.getConfig().contains("Eggs")) {
-            for (String keyName : eggFile.getConfig().getConfigurationSection("Eggs").getKeys(false)) {
-                ConfigurationSection section = eggFile.getConfig().getConfigurationSection("Eggs." + keyName);
-
-                EggBuilder eggBuilder = new EggBuilder(keyName)
-                        .setName(section.getString("Name"))
-                        .setRecipe(section.getStringList("Recipe"))
-                        .setCost(section.getDouble("Cost"))
-                        .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
-
-                eggManager.addEgg(eggBuilder.build());
-            }
-        }
-
-
+        // Setup Listeners
+        guiManager.init();
         PluginManager pluginManager = Bukkit.getPluginManager();
-
-        if (pluginManager.isPluginEnabled("UltimateStacker"))
-            stacker = new UltimateStacker();
-
         entityListeners = new EntityListeners(this);
-
         pluginManager.registerEvents(entityListeners, this);
         pluginManager.registerEvents(new DispenserListeners(), this);
-        if (isServerVersionAtLeast(ServerVersion.V1_12)) pluginManager.registerEvents(new EntityPickupListeners(), this);
-
-        // Setup language
-        new Locale(this, "en_US");
-        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode"));
-
-        //Running Songoda Updater
-        Plugin plugin = new Plugin(this, 51);
-        plugin.addModule(new LocaleModule());
-        SongodaUpdate.load(plugin);
+        if (isServerVersionAtLeast(ServerVersion.V1_12))
+            pluginManager.registerEvents(new EntityPickupListeners(), this);
 
         EggTrackingTask.startTask(this);
 
-        // Setup Economy
-        if (Setting.VAULT_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("Vault"))
-            this.economy = new VaultEconomy();
-        else if (Setting.RESERVE_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("Reserve"))
-            this.economy = new ReserveEconomy();
-        else if (Setting.PLAYER_POINTS_ECONOMY.getBoolean() && pluginManager.isPluginEnabled("PlayerPoints"))
-            this.economy = new PlayerPointsEconomy();
+        // Set economy preference
+        EconomyManager.getManager().setPreferredHook(Settings.ECONOMY_PLUGIN.getString());
 
         // Register recipe
-        if (Setting.USE_CATCHER_RECIPE.getBoolean()) {
+        if (Settings.USE_CATCHER_RECIPE.getBoolean()) {
             for (CEgg egg : eggManager.getRegisteredEggs()) {
                 ShapelessRecipe shapelessRecipe = isServerVersionAtLeast(ServerVersion.V1_12)
                         ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
@@ -155,48 +115,80 @@ public class UltimateCatcher extends JavaPlugin {
             }
         }
 
-        // Starting Metrics
-        new Metrics(this);
+        // Load Mobs and Eggs
+        setupMobs();
+        setupEgg();
+    }
 
-        console.sendMessage(Methods.formatText("&a============================="));
+    private void setupMobs() {
+        for (EntityType value : EntityType.values()) {
+            if (value.isSpawnable()
+                    && value.isAlive()
+                    && !value.toString().contains("ARMOR")
+                    && value != EntityType.PLAYER
+                    && value != EntityType.WITHER
+                    && value != EntityType.ENDER_DRAGON
+                    && value != EntityType.IRON_GOLEM) {
+                mobConfig.setDefault("Mobs." + value.name() + ".Enabled", true)
+                        .setDefault("Mobs." + value.name() + ".Display Name", Methods.formatText(value.name().toLowerCase().replace("_", " "), true));
+            }
+        }
+        mobConfig.setRootNodeSpacing(1).setCommentSpacing(0);
+        mobConfig.load();
+        mobConfig.saveChanges();
     }
 
     /*
      * Insert default key list into config.
      */
+    private void setupEgg() {
+        eggConfig.createDefaultSection("Eggs")
+                .setDefault("Regular.Name", "&7Regular Egg")
+                .setDefault("Regular.Recipe", Arrays.asList("1:EGG", "5:IRON_INGOT"))
+                .setDefault("Regular.Cost", 0)
+                .setDefault("Regular.Chance", "25%")
+                .setDefault("Ultra.Name", "&6Ultra Egg")
+                .setDefault("Ultra.Recipe", Arrays.asList("1:EGG", "5:DIAMOND"))
+                .setDefault("Ultra.Cost", 15)
+                .setDefault("Ultra.Chance", "60%")
+                .setDefault("Insane.Name", "&5Insane Egg")
+                .setDefault("Insane.Recipe", Arrays.asList("1:EGG", "5:EMERALD"))
+                .setDefault("Insane.Cost", 50)
+                .setDefault("Insane.Chance", "100%");
+        eggConfig.setRootNodeSpacing(1).setCommentSpacing(0);
+        eggConfig.load();
+        eggConfig.saveChanges();
 
-    private void checkEggDefaults() {
-        if (eggFile.getConfig().contains("Eggs")) return;
-        eggFile.getConfig().set("Eggs.Regular.Name", "&7Regular Egg");
-        eggFile.getConfig().set("Eggs.Regular.Recipe", Arrays.asList("1:EGG", "5:IRON_INGOT"));
-        eggFile.getConfig().set("Eggs.Regular.Cost", 0);
-        eggFile.getConfig().set("Eggs.Regular.Chance", "25%");
-        eggFile.getConfig().set("Eggs.Ultra.Name", "&6Ultra Egg");
-        eggFile.getConfig().set("Eggs.Ultra.Recipe", Arrays.asList("1:EGG", "5:DIAMOND"));
-        eggFile.getConfig().set("Eggs.Ultra.Cost", 15);
-        eggFile.getConfig().set("Eggs.Ultra.Chance", "60%");
-        eggFile.getConfig().set("Eggs.Insane.Name", "&5Insane Egg");
-        eggFile.getConfig().set("Eggs.Insane.Recipe", Arrays.asList("1:EGG", "5:EMERALD"));
-        eggFile.getConfig().set("Eggs.Insane.Cost", 50);
-        eggFile.getConfig().set("Eggs.Insane.Chance", "100%");
-        eggFile.saveConfig();
+        /*
+         * Register eggs into EggManager from Configuration.
+         */
+        if (eggConfig.contains("Eggs")) {
+            for (String keyName : eggConfig.getConfigurationSection("Eggs").getKeys(false)) {
+                ConfigurationSection section = eggConfig.getConfigurationSection("Eggs." + keyName);
+
+                EggBuilder eggBuilder = new EggBuilder(keyName)
+                        .setName(section.getString("Name"))
+                        .setRecipe(section.getStringList("Recipe"))
+                        .setCost(section.getDouble("Cost"))
+                        .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
+
+                eggManager.addEgg(eggBuilder.build());
+            }
+        }
     }
 
     @Override
-    public void onDisable() {
-        mobFile.saveConfig();
-        ConsoleCommandSender console = Bukkit.getConsoleSender();
-        console.sendMessage(Methods.formatText("&a============================="));
-        console.sendMessage(Methods.formatText("&7UltimateCatcher " + this.getDescription().getVersion() + " by &5Songoda <3!"));
-        console.sendMessage(Methods.formatText("&7Action: &cDisabling&7..."));
-        console.sendMessage(Methods.formatText("&a============================="));
+    public void onPluginDisable() {
     }
 
-    public void reload() {
-        this.mobFile = new ConfigWrapper(this, "", "mobs.yml");
-        this.locale = Locale.getLocale(getConfig().getString("System.Language Mode"));
-        this.locale.reloadMessages();
-        this.settingsManager.reloadConfig();
+    @Override
+    public void onConfigReload() {
+        this.setLocale(Settings.LANGUGE_MODE.getString(), true);
+    }
+
+    @Override
+    public List<Config> getExtraConfig() {
+        return Arrays.asList(mobConfig, eggConfig);
     }
 
     public ServerVersion getServerVersion() {
@@ -215,20 +207,8 @@ public class UltimateCatcher extends JavaPlugin {
         return serverVersion.ordinal() >= version.ordinal();
     }
 
-    public Stacker getStacker() {
-        return stacker;
-    }
-
-    public Locale getLocale() {
-        return locale;
-    }
-
     public CommandManager getCommandManager() {
         return commandManager;
-    }
-
-    public SettingsManager getSettingsManager() {
-        return settingsManager;
     }
 
     public EggManager getEggManager() {
@@ -239,11 +219,11 @@ public class UltimateCatcher extends JavaPlugin {
         return entityListeners;
     }
 
-    public ConfigWrapper getMobFile() {
-        return mobFile;
+    public GuiManager getGuiManager() {
+        return guiManager;
     }
 
-    public Economy getEconomy() {
-        return economy;
+    public Config getMobConfig() {
+        return mobConfig;
     }
 }

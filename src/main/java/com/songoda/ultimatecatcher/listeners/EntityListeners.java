@@ -1,12 +1,13 @@
 package com.songoda.ultimatecatcher.listeners;
 
+import com.songoda.core.hooks.EconomyManager;
+import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.economy.Economy;
 import com.songoda.ultimatecatcher.egg.CEgg;
+import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
-import com.songoda.ultimatecatcher.utils.settings.Setting;
 import net.minecraft.server.v1_14_R1.EntityFox;
 import net.minecraft.server.v1_14_R1.GameProfileSerializer;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
@@ -178,10 +179,10 @@ public class EntityListeners implements Listener {
                                 && entity.getType() != EntityType.PLAYER
                                 && entity.getType() == EntityType.CHICKEN).findFirst().ifPresent(Entity::remove), 0L);
 
-        Entity entity = null;
+        LivingEntity entity = null;
 
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_11))
-            entity = event.getHitEntity();
+            entity = (LivingEntity) event.getHitEntity();
         else {
             Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 2, 2, 2).stream()
                     .filter(e -> e instanceof LivingEntity
@@ -189,7 +190,7 @@ public class EntityListeners implements Listener {
                             && e.getTicksLived() > 20)
                     .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation()))).findFirst();
             if (found.isPresent()) {
-                entity = found.get();
+                entity = (LivingEntity) found.get();
             }
         }
 
@@ -198,7 +199,7 @@ public class EntityListeners implements Listener {
             return;
         }
 
-        ConfigurationSection configurationSection = plugin.getMobFile().getConfig();
+        ConfigurationSection configurationSection = plugin.getMobConfig();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
         String formatted = Methods.getFormattedEntityType(entity.getType());
@@ -208,7 +209,6 @@ public class EntityListeners implements Listener {
             return;
         }
 
-        Economy economy = plugin.getEconomy();
         double cost = catcher.getCost();
         Player player = offlinePlayer.getPlayer();
 
@@ -227,11 +227,11 @@ public class EntityListeners implements Listener {
 
         if (!(player.hasPermission("ultimatecatcher.catch.*")
                 || (player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name())
-                    && (entity instanceof Animals || entity instanceof Ambient || entity instanceof WaterMob
-                        || entity instanceof Golem || entity instanceof AbstractVillager))
+                && (entity instanceof Animals || entity instanceof Ambient || entity instanceof WaterMob
+                || entity instanceof Golem || entity instanceof AbstractVillager))
                 || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()))
-                    && (entity instanceof Monster || entity instanceof Boss
-                        || entity instanceof Flying || entity instanceof Slime))) {
+                && (entity instanceof Monster || entity instanceof Boss
+                || entity instanceof Flying || entity instanceof Slime))) {
 
             plugin.getLocale().getMessage("event.catch.notenabled")
                     .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
@@ -255,7 +255,7 @@ public class EntityListeners implements Listener {
         }
 
         if (entity instanceof Tameable
-                && Setting.REJECT_TAMED.getBoolean()
+                && Settings.REJECT_TAMED.getBoolean()
                 && ((Tameable) entity).isTamed()
                 && ((Tameable) entity).getOwner().getUniqueId() != player.getUniqueId()) {
             plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
@@ -267,7 +267,7 @@ public class EntityListeners implements Listener {
         if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)) {
             if (!isPlayerTrusted(entity, player)
                     && !isFoxWild(entity)
-                    && Setting.REJECT_TAMED.getBoolean()) {
+                    && Settings.REJECT_TAMED.getBoolean()) {
                 Bukkit.broadcastMessage("Its a fox issue");
                 plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
                 reject(egg, catcher, true);
@@ -275,9 +275,9 @@ public class EntityListeners implements Listener {
             }
         }
 
-        if (economy != null && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
-            if (economy.hasBalance(player, cost))
-                economy.withdrawBalance(player, cost);
+        if (EconomyManager.isEnabled() && cost != 0 && !player.hasPermission("ultimatecatcher.bypass.free")) {
+            if (EconomyManager.hasBalance(player, cost))
+                EconomyManager.withdrawBalance(player, cost);
             else {
 
                 plugin.getLocale().getMessage("event.catch.cantafford")
@@ -302,18 +302,18 @@ public class EntityListeners implements Listener {
             item = new ItemStack(Material.valueOf("MONSTER_EGG"), 1, entity.getType().getTypeId());
         }
 
-        if (plugin.getStacker() != null && plugin.getStacker().isStacked(entity))
-            plugin.getStacker().removeOne(entity);
+        if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(entity))
+            EntityStackerManager.getStacker().removeOne(entity);
         else
             entity.remove();
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity((LivingEntity) entity) + "~")
+        meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity(entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn")
                 .processPlaceholder("type",
                         Methods.formatText(entity.getCustomName() != null
                                 && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                                && !(plugin.getStacker() != null && !plugin.getStacker().isStacked(entity)) ? entity.getCustomName()
+                                && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(entity)) ? entity.getCustomName()
                                 : Methods.getFormattedEntityType(entity.getType()))).getMessage());
 
         List<String> lore = new ArrayList<>();
@@ -321,8 +321,8 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("value", Methods.getFormattedEntityType(entity.getType()))
                 .getMessage());
 
-        double health = Math.round(((LivingEntity) entity).getHealth() * 100.0) / 100.0;
-        double max = ((LivingEntity) entity).getMaxHealth();
+        double health = Math.round(entity.getHealth() * 100.0) / 100.0;
+        double max = entity.getMaxHealth();
 
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
                 .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max") : health + "/" + max)).getMessage());

@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.utils;
 
+import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import net.minecraft.server.v1_14_R1.EntityFox;
 import net.minecraft.server.v1_14_R1.GameProfileSerializer;
@@ -50,7 +51,7 @@ public class Methods {
     }
 
     public static String getFormattedEntityType(EntityType type) {
-        return UltimateCatcher.getInstance().getMobFile().getConfig().getString("Mobs." + type.name() + ".Display Name");
+        return UltimateCatcher.getInstance().getMobConfig().getString("Mobs." + type.name() + ".Display Name");
     }
 
     public static void takeItem(Player player, int amount) {
@@ -71,7 +72,7 @@ public class Methods {
         if (entity instanceof Ageable)
             jsonObject.put("baby", !((Ageable) entity).isAdult());
         if (entity.getCustomName() != null && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                && !(UltimateCatcher.getInstance().getStacker() != null && !UltimateCatcher.getInstance().getStacker().isStacked(entity)))
+                && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(entity)))
             jsonObject.put("name", entity.getCustomName());
         jsonObject.put("health", entity.getHealth());
 
