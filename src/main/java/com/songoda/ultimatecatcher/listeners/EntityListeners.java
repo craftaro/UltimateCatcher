@@ -2,6 +2,7 @@ package com.songoda.ultimatecatcher.listeners;
 
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
@@ -268,7 +269,6 @@ public class EntityListeners implements Listener {
             if (!isPlayerTrusted(entity, player)
                     && !isFoxWild(entity)
                     && Settings.REJECT_TAMED.getBoolean()) {
-                Bukkit.broadcastMessage("Its a fox issue");
                 plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
                 reject(egg, catcher, true);
                 return;
@@ -308,7 +308,7 @@ public class EntityListeners implements Listener {
             entity.remove();
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Methods.convertToInvisibleString("UC-" + Methods.serializeEntity(entity) + "~")
+        meta.setDisplayName(TextUtils.convertToInvisibleString("UC-" + Methods.serializeEntity(entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn")
                 .processPlaceholder("type",
                         Methods.formatText(entity.getCustomName() != null

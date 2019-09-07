@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.egg;
 
+import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.Methods;
 import com.songoda.ultimatecatcher.utils.ServerVersion;
@@ -28,7 +29,7 @@ public class CEgg {
                 ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte)56);
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Methods.convertToInvisibleString("UCI;" + key + ";") + Methods.formatText(name));
+        meta.setDisplayName(TextUtils.convertToInvisibleString("UCI;" + key + ";") + Methods.formatText(name));
 
         // ToDo: Translate this.
         List<String> lore = new ArrayList<>();
