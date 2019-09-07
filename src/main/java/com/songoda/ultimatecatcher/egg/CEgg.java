@@ -1,9 +1,9 @@
 package com.songoda.ultimatecatcher.egg;
 
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.Methods;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,7 +25,7 @@ public class CEgg {
     }
 
     public ItemStack toItemStack() {
-        ItemStack item = new ItemStack(UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_13)
+        ItemStack item = new ItemStack(ServerVersion.isServerVersionAtLeast(ServerVersion.V1_13)
                 ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte)56);
 
         ItemMeta meta = item.getItemMeta();
@@ -85,10 +85,12 @@ public class CEgg {
         this.chance = chance;
     }
 
+    @Override
     public int hashCode() {
         return 31 * key.hashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof CEgg)) return false;
@@ -97,6 +99,7 @@ public class CEgg {
         return Objects.equals(key, other.key);
     }
 
+    @Override
     public String toString() {
         return "CEgg:{"
                 + "Key:\"" + key + "\","

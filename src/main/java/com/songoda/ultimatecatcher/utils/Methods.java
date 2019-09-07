@@ -1,68 +1,42 @@
 package com.songoda.ultimatecatcher.utils;
 
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
+import java.util.UUID;
 import net.minecraft.server.v1_14_R1.EntityFox;
 import net.minecraft.server.v1_14_R1.GameProfileSerializer;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.Panda;
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.UUID;
-
 public class Methods {
-
-    private static Method methodGetItem, methodAsNMSCopy;
-    private static Field fieldMaxStackSize;
-
-    public static ItemStack setMax(ItemStack item, int max) {
-        try {
-            if (methodGetItem == null) {
-                String ver = Bukkit.getServer().getClass().getPackage().getName().substring(23);
-                Class<?> clazzCraftItemStack = Class.forName("org.bukkit.craftbukkit." + ver + ".inventory.CraftItemStack");
-                Class<?> clazzItemStack = Class.forName("net.minecraft.server." + ver + ".ItemStack");
-                Class<?> clazzItem = Class.forName("net.minecraft.server." + ver + ".Item");
-
-                methodAsNMSCopy = clazzCraftItemStack.getMethod("asNMSCopy", ItemStack.class);
-                methodGetItem = clazzItemStack.getDeclaredMethod("getItem");
-
-                fieldMaxStackSize = clazzItem.getDeclaredField("maxStackSize");
-                fieldMaxStackSize.setAccessible(true);
-            }
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Object objItemStack = methodGetItem.invoke(methodAsNMSCopy.invoke(null, item));
-            fieldMaxStackSize.set(objItemStack, max);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-        return item;
-    }
 
     public static String getFormattedEntityType(EntityType type) {
         return UltimateCatcher.getInstance().getMobConfig().getString("Mobs." + type.name() + ".Display Name");
-    }
-
-    public static void takeItem(Player player, int amount) {
-        if (player.getGameMode() == GameMode.CREATIVE) return;
-
-        ItemStack item = player.getInventory().getItemInHand();
-
-        int result = item.getAmount() - amount;
-        item.setAmount(result);
-
-        player.setItemInHand(result > 0 ? item : null);
     }
 
     public static String serializeEntity(LivingEntity entity) {
@@ -88,14 +62,14 @@ public class Methods {
             if (sheep.isSheared())
                 jsonObject.put("sheered", true);
             jsonObject.put("color", sheep.getColor().name());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Cat) {
+        } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Cat) {
             Cat cat = ((Cat) entity);
             jsonObject.put("color", cat.getCollarColor().name());
             jsonObject.put("catType", cat.getCatType().name());
         } else if (entity instanceof Wolf) {
             Wolf wolf = ((Wolf) entity);
             jsonObject.put("color", wolf.getCollarColor().name());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_11) && entity instanceof Llama) {
+        } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11) && entity instanceof Llama) {
             Llama llama = ((Llama) entity);
             jsonObject.put("color", llama.getColor().name());
             if (llama.getInventory().getDecor() != null)
@@ -106,7 +80,7 @@ public class Methods {
         } else if (entity instanceof Slime) {
             Slime slime = ((Slime) entity);
             jsonObject.put("size", slime.getSize());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_12) && entity instanceof Parrot) {
+        } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12) && entity instanceof Parrot) {
             Parrot parrot = ((Parrot) entity);
             jsonObject.put("variant", parrot.getVariant().name());
         } else if (entity instanceof Horse) {
@@ -120,11 +94,11 @@ public class Methods {
                 jsonObject.put("armor", horse.getInventory().getArmor().getType().name());
             if (horse.getInventory().getSaddle() != null)
                 jsonObject.put("saddle", horse.getInventory().getSaddle().getType().name());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Panda) {
+        } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Panda) {
             Panda panda = ((Panda) entity);
             jsonObject.put("geneHidden", panda.getHiddenGene().name());
             jsonObject.put("geneMain", panda.getMainGene().name());
-        } else if (UltimateCatcher.getInstance().isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Fox) {
+        } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Fox) {
             Fox fox = ((Fox) entity);
             EntityFox entityFox = ((CraftFox) fox).getHandle();
             NBTTagCompound foxNBT = new NBTTagCompound();

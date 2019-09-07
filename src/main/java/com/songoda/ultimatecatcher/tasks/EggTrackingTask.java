@@ -1,8 +1,8 @@
 package com.songoda.ultimatecatcher.tasks;
 
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.Methods;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
 import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -49,7 +49,7 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 Entity entity = Methods.spawnEntity(item.getLocation(), json);
 
-                if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+                if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
                     entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
                     entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
                 }

@@ -1,6 +1,7 @@
 package com.songoda.ultimatecatcher.commands;
 
 import com.songoda.core.commands.AbstractCommand;
+import com.songoda.core.utils.PlayerUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import org.bukkit.Bukkit;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandGive extends AbstractCommand {
 
@@ -24,7 +26,8 @@ public class CommandGive extends AbstractCommand {
     protected ReturnType runCommand(CommandSender sender, String... args) {
         if (args.length != 2) return ReturnType.SYNTAX_ERROR;
 
-        if (Bukkit.getPlayer(args[0]) == null && !args[0].trim().toLowerCase().equals("all")) {
+        final Player player = Bukkit.getPlayer(args[0]);
+        if (player == null && !args[0].trim().toLowerCase().equals("all")) {
             sender.sendMessage("Not a player...");
             return ReturnType.FAILURE;
         }
@@ -37,12 +40,11 @@ public class CommandGive extends AbstractCommand {
         }
 
         ItemStack itemStack = catcher.toItemStack();
-        if (!args[1].trim().toLowerCase().equals("all")) {
-            Player player = Bukkit.getOfflinePlayer(args[0]).getPlayer();
+        if (player != null) {
             player.getInventory().addItem(itemStack);
         } else {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.getInventory().addItem(itemStack);
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.getInventory().addItem(itemStack);
             }
         }
         return ReturnType.SUCCESS;
@@ -69,13 +71,14 @@ public class CommandGive extends AbstractCommand {
 
     @Override
     protected List<String> onTab(CommandSender sender, String... args) {
-        List<String> tab = new ArrayList<>();
+        List<String> tab = null;
 
         if (args.length == 1) {
+            tab = new ArrayList();
             tab.add("all");
-            for (Player player : Bukkit.getOnlinePlayers()) tab.add(player.getName());
+            tab.addAll(PlayerUtils.getVisiblePlayerNames(sender, args[0]));
         } else if (args.length == 2) {
-            for (CEgg egg : UltimateCatcher.getInstance().getEggManager().getRegisteredEggs()) tab.add(egg.getKey());
+            tab = UltimateCatcher.getInstance().getEggManager().getRegisteredEggs().stream().map(e -> e.getKey()).collect(Collectors.toList());
         }
 
         return tab;

@@ -1,22 +1,56 @@
 package com.songoda.ultimatecatcher.listeners;
 
+import com.songoda.core.compatibility.CompatibleSounds;
+import com.songoda.core.compatibility.LegacyMaterials;
+import com.songoda.core.compatibility.ParticleHandler;
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.core.utils.ItemUtils;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.server.v1_14_R1.EntityFox;
 import net.minecraft.server.v1_14_R1.GameProfileSerializer;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Ambient;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Boss;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Flying;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.WaterMob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,14 +64,12 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
-
 public class EntityListeners implements Listener {
 
     private final UltimateCatcher plugin;
 
-    private Map<UUID, UUID> eggs = new HashMap<>();
-    private Set<UUID> oncePerTick = new HashSet<>();
+    private final Map<UUID, UUID> eggs = new HashMap<>();
+    private final Set<UUID> oncePerTick = new HashSet<>();
 
     public EntityListeners(UltimateCatcher plugin) {
         this.plugin = plugin;
@@ -46,7 +78,7 @@ public class EntityListeners implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
         boolean isOffHand = false;
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) {
                 isOffHand = true;
             }
@@ -78,12 +110,11 @@ public class EntityListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
-                location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
+            location.getWorld().playSound(location, CompatibleSounds.ENTITY_EGG_THROW.getSound(), 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
-            Methods.takeItem(player, 1);
+            ItemUtils.takeActiveItem(player);
             return true;
         }
 
@@ -111,7 +142,7 @@ public class EntityListeners implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onToss(PlayerInteractEvent event) {
         boolean isOffHand = false;
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
             if (event.getHand() == EquipmentSlot.OFF_HAND) {
                 isOffHand = true;
             }
@@ -139,7 +170,7 @@ public class EntityListeners implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                     toThrow.removeEnchantment(Enchantment.ARROW_KNOCKBACK), 50);
             toThrow.setAmount(1);
-            Methods.setMax(item, 1);
+            ItemUtils.setMaxStack(item, 1);
 
             // When you see it just know it wasn't anyone on our teams idea.
             toThrow.addUnsafeEnchantment(Enchantment.ARROW_KNOCKBACK, 69);
@@ -150,13 +181,12 @@ public class EntityListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
-                location.getWorld().playSound(location, Sound.ENTITY_EGG_THROW, 1L, 1L);
+            location.getWorld().playSound(location, CompatibleSounds.ENTITY_EGG_THROW.getSound(), 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
             EggTrackingTask.addEgg(egg);
-            Methods.takeItem(player, 1);
+            ItemUtils.takeActiveItem(player);
         }
     }
 
@@ -182,7 +212,7 @@ public class EntityListeners implements Listener {
 
         LivingEntity entity = null;
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_11))
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11))
             entity = (LivingEntity) event.getHitEntity();
         else {
             Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 2, 2, 2).stream()
@@ -245,8 +275,7 @@ public class EntityListeners implements Listener {
         double rand = Math.random() * 100;
         if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
 
-            if (plugin.isServerVersionAtLeast(ServerVersion.V1_9))
-                egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+            egg.getWorld().playSound(egg.getLocation(), CompatibleSounds.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
 
             plugin.getLocale().getMessage("event.catch.failed")
                     .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
@@ -265,7 +294,7 @@ public class EntityListeners implements Listener {
 
         }
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)) {
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
             if (!isPlayerTrusted(entity, player)
                     && !isFoxWild(entity)
                     && Settings.REJECT_TAMED.getBoolean()) {
@@ -291,16 +320,11 @@ public class EntityListeners implements Listener {
         }
         egg.remove();
 
-
-        ItemStack item;
-
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_13)) {
-            Material material = Material.matchMaterial(entity.getType().name().replace("MUSHROOM_COW", "MOOSHROOM") + "_SPAWN_EGG");
-            if (material == null) return;
-            item = new ItemStack(material);
-        } else {
-            item = new ItemStack(Material.valueOf("MONSTER_EGG"), 1, entity.getType().getTypeId());
+        LegacyMaterials spawnEgg = LegacyMaterials.getSpawnEgg(entity.getType());
+        if(spawnEgg == null) {
+            return;
         }
+        ItemStack item = spawnEgg.getItem();
 
         if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(entity))
             EntityStackerManager.getStacker().removeOne(entity);
@@ -333,7 +357,7 @@ public class EntityListeners implements Listener {
         if (entity instanceof Tameable && ((Tameable) entity).isTamed())
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_14)) {
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
             if (isPlayerTrusted(entity, player) || !isFoxWild(entity))
                 lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
         }
@@ -347,15 +371,13 @@ public class EntityListeners implements Listener {
 
         entity.getWorld().dropItem(event.getEntity().getLocation(), item);
 
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-            entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
-        }
+        ParticleHandler.spawnParticles(ParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+        entity.getWorld().playSound(entity.getLocation(), CompatibleSounds.ITEM_FIRECHARGE_USE.getSound(), 1L, 1L);
     }
 
     private void reject(Egg egg, CEgg catcher, boolean sound) {
-        if (plugin.isServerVersionAtLeast(ServerVersion.V1_9) && sound)
-            egg.getWorld().playSound(egg.getLocation(), Sound.ENTITY_VILLAGER_NO, 1L, 1L);
+        if (sound)
+            egg.getWorld().playSound(egg.getLocation(), CompatibleSounds.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
 
         egg.getWorld().dropItem(egg.getLocation(), catcher.toItemStack());
         egg.remove();
@@ -370,7 +392,7 @@ public class EntityListeners implements Listener {
         // Foxes are only in 1.14, no reflection needed.
         if (!(entity instanceof Fox)) return false;
         Fox fox = (Fox) entity;
-        if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
+        if (!ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
         EntityFox entityFox = ((CraftFox) fox).getHandle();
         NBTTagCompound foxNBT = new NBTTagCompound();
         entityFox.b(foxNBT);
@@ -382,7 +404,7 @@ public class EntityListeners implements Listener {
     private boolean isFoxWild(Entity entity) {
         if (!(entity instanceof Fox)) return true;
         Fox fox = (Fox) entity;
-        if (!plugin.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
+        if (!ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
         EntityFox entityFox = ((CraftFox) fox).getHandle();
         NBTTagCompound foxNBT = new NBTTagCompound();
         entityFox.b(foxNBT);

@@ -2,6 +2,7 @@ package com.songoda.ultimatecatcher.commands;
 
 import com.songoda.core.commands.AbstractCommand;
 import com.songoda.core.configuration.editor.PluginConfigGui;
+import com.songoda.core.gui.GuiManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,16 +11,16 @@ import java.util.List;
 
 public class CommandSettings extends AbstractCommand {
 
-    final UltimateCatcher instance;
+    final GuiManager guiManager;
 
-    public CommandSettings(UltimateCatcher instance) {
+    public CommandSettings(GuiManager guiManager) {
         super(true, "settings");
-        this.instance = instance;
+        this.guiManager = guiManager;
     }
 
     @Override
     protected ReturnType runCommand(CommandSender sender, String... args) {
-        instance.getGuiManager().showGUI((Player) sender, new PluginConfigGui(instance));
+        guiManager.showGUI((Player) sender, new PluginConfigGui(UltimateCatcher.getInstance()));
         return ReturnType.SUCCESS;
     }
 

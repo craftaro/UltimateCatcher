@@ -4,6 +4,7 @@ import com.songoda.core.SongodaCore;
 import com.songoda.core.SongodaPlugin;
 import com.songoda.core.commands.CommandManager;
 import com.songoda.core.compatibility.LegacyMaterials;
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.configuration.Config;
 import com.songoda.core.gui.GuiManager;
 import com.songoda.core.hooks.EconomyManager;
@@ -21,9 +22,6 @@ import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
-import com.songoda.ultimatecatcher.utils.Metrics;
-import com.songoda.ultimatecatcher.utils.ServerVersion;
-import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -39,15 +37,13 @@ public class UltimateCatcher extends SongodaPlugin {
 
     private static UltimateCatcher INSTANCE;
 
-    private Config mobConfig = new Config(this, "mobs.yml");
-    private Config eggConfig = new Config(this, "eggs.yml");
+    private final Config mobConfig = new Config(this, "mobs.yml");
+    private final Config eggConfig = new Config(this, "eggs.yml");
 
-    private GuiManager guiManager = new GuiManager(this);
+    private final GuiManager guiManager = new GuiManager(this);
     private EggManager eggManager;
     private CommandManager commandManager;
     private EntityListeners entityListeners;
-
-    private ServerVersion serverVersion = ServerVersion.fromPackageName(Bukkit.getServer().getClass().getPackage().getName());
 
     public static UltimateCatcher getInstance() {
         return INSTANCE;
@@ -81,7 +77,7 @@ public class UltimateCatcher extends SongodaPlugin {
         this.commandManager.addCommand(new CommandUltimateCatcher(this))
                 .addSubCommands(
                         new CommandGive(this),
-                        new CommandSettings(this),
+                        new CommandSettings(guiManager),
                         new CommandReload(this)
                 );
 
@@ -93,7 +89,7 @@ public class UltimateCatcher extends SongodaPlugin {
         entityListeners = new EntityListeners(this);
         pluginManager.registerEvents(entityListeners, this);
         pluginManager.registerEvents(new DispenserListeners(), this);
-        if (isServerVersionAtLeast(ServerVersion.V1_12))
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12))
             pluginManager.registerEvents(new EntityPickupListeners(), this);
 
         EggTrackingTask.startTask(this);
@@ -104,7 +100,7 @@ public class UltimateCatcher extends SongodaPlugin {
         // Register recipe
         if (Settings.USE_CATCHER_RECIPE.getBoolean()) {
             for (CEgg egg : eggManager.getRegisteredEggs()) {
-                ShapelessRecipe shapelessRecipe = isServerVersionAtLeast(ServerVersion.V1_12)
+                ShapelessRecipe shapelessRecipe = ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)
                         ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
                         egg.toItemStack()) : new ShapelessRecipe(egg.toItemStack());
                 for (String item : egg.getRecipe()) {
@@ -191,22 +187,6 @@ public class UltimateCatcher extends SongodaPlugin {
         return Arrays.asList(mobConfig, eggConfig);
     }
 
-    public ServerVersion getServerVersion() {
-        return serverVersion;
-    }
-
-    public boolean isServerVersion(ServerVersion version) {
-        return serverVersion == version;
-    }
-
-    public boolean isServerVersion(ServerVersion... versions) {
-        return ArrayUtils.contains(versions, serverVersion);
-    }
-
-    public boolean isServerVersionAtLeast(ServerVersion version) {
-        return serverVersion.ordinal() >= version.ordinal();
-    }
-
     public CommandManager getCommandManager() {
         return commandManager;
     }
@@ -217,10 +197,6 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public EntityListeners getEntityListeners() {
         return entityListeners;
-    }
-
-    public GuiManager getGuiManager() {
-        return guiManager;
     }
 
     public Config getMobConfig() {
