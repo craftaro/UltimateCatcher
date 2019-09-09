@@ -94,8 +94,9 @@ public class UltimateCatcher extends SongodaPlugin {
 
         EggTrackingTask.startTask(this);
 
-        // Set economy preference
-        EconomyManager.getManager().setPreferredHook(Settings.ECONOMY_PLUGIN.getString());
+        // Load Mobs and Eggs
+        setupMobs();
+        setupEgg();
 
         // Register recipe
         if (Settings.USE_CATCHER_RECIPE.getBoolean()) {
@@ -110,10 +111,6 @@ public class UltimateCatcher extends SongodaPlugin {
                 Bukkit.addRecipe(shapelessRecipe);
             }
         }
-
-        // Load Mobs and Eggs
-        setupMobs();
-        setupEgg();
     }
 
     private void setupMobs() {
