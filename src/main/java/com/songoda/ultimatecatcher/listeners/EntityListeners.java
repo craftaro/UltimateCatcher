@@ -1,8 +1,8 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.CompatibleSounds;
-import com.songoda.core.compatibility.LegacyMaterials;
-import com.songoda.core.compatibility.ParticleHandler;
+import com.songoda.core.compatibility.CompatibleSound;
+import com.songoda.core.compatibility.CompatibleMaterial;
+import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
@@ -110,7 +110,7 @@ public class EntityListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-            location.getWorld().playSound(location, CompatibleSounds.ENTITY_EGG_THROW.getSound(), 1L, 1L);
+            location.getWorld().playSound(location, CompatibleSound.ENTITY_EGG_THROW.getSound(), 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
@@ -181,7 +181,7 @@ public class EntityListeners implements Listener {
 
             eggs.put(egg.getUniqueId(), player.getUniqueId());
 
-            location.getWorld().playSound(location, CompatibleSounds.ENTITY_EGG_THROW.getSound(), 1L, 1L);
+            location.getWorld().playSound(location, CompatibleSound.ENTITY_EGG_THROW.getSound(), 1L, 1L);
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
@@ -275,7 +275,7 @@ public class EntityListeners implements Listener {
         double rand = Math.random() * 100;
         if (!(rand - ch < 0 || ch == 100) && !player.hasPermission("ultimatecatcher.bypass.chance")) {
 
-            egg.getWorld().playSound(egg.getLocation(), CompatibleSounds.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
+            egg.getWorld().playSound(egg.getLocation(), CompatibleSound.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
 
             plugin.getLocale().getMessage("event.catch.failed")
                     .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
@@ -320,7 +320,7 @@ public class EntityListeners implements Listener {
         }
         egg.remove();
 
-        LegacyMaterials spawnEgg = LegacyMaterials.getSpawnEgg(entity.getType());
+        CompatibleMaterial spawnEgg = CompatibleMaterial.getSpawnEgg(entity.getType());
         if(spawnEgg == null) {
             return;
         }
@@ -371,13 +371,13 @@ public class EntityListeners implements Listener {
 
         entity.getWorld().dropItem(event.getEntity().getLocation(), item);
 
-        ParticleHandler.spawnParticles(ParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-        entity.getWorld().playSound(entity.getLocation(), CompatibleSounds.ITEM_FIRECHARGE_USE.getSound(), 1L, 1L);
+        CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+        entity.getWorld().playSound(entity.getLocation(), CompatibleSound.ITEM_FIRECHARGE_USE.getSound(), 1L, 1L);
     }
 
     private void reject(Egg egg, CEgg catcher, boolean sound) {
         if (sound)
-            egg.getWorld().playSound(egg.getLocation(), CompatibleSounds.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
+            egg.getWorld().playSound(egg.getLocation(), CompatibleSound.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
 
         egg.getWorld().dropItem(egg.getLocation(), catcher.toItemStack());
         egg.remove();

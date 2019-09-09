@@ -3,7 +3,7 @@ package com.songoda.ultimatecatcher;
 import com.songoda.core.SongodaCore;
 import com.songoda.core.SongodaPlugin;
 import com.songoda.core.commands.CommandManager;
-import com.songoda.core.compatibility.LegacyMaterials;
+import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.configuration.Config;
 import com.songoda.core.gui.GuiManager;
@@ -57,7 +57,7 @@ public class UltimateCatcher extends SongodaPlugin {
     @Override
     public void onPluginEnable() {
         // Run Songoda Updater
-        SongodaCore.registerPlugin(this, 51, LegacyMaterials.EGG);
+        SongodaCore.registerPlugin(this, 51, CompatibleMaterial.EGG);
 
         // Load Economy
         EconomyManager.load();
