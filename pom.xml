@@ -48,11 +48,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.songoda.core</pattern>
-                                    <shadedPattern>${project.groupId}.ultimatefishing.core</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.songoda.lootables</pattern>
-                                    <shadedPattern>${project.groupId}.ultimatefishing.lootables</shadedPattern>
+                                    <shadedPattern>${project.groupId}.ultimatecatcher.core</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
