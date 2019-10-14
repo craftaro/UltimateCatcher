@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Settings {
 
-    static final Config config = UltimateCatcher.getInstance().getConfig().getCoreConfig();
+    static final Config config = UltimateCatcher.getInstance().getCoreConfig();
 
     public static final ConfigSetting USE_CATCHER_RECIPE = new ConfigSetting(config, "Main.Use Catcher Recipe", true,
             "Should egg recipes be enabled.");

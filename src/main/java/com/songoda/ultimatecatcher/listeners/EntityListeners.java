@@ -1,8 +1,8 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleParticleHandler;
+import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
@@ -13,44 +13,15 @@ import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.Methods;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.server.v1_14_R1.EntityFox;
 import net.minecraft.server.v1_14_R1.GameProfileSerializer;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AbstractVillager;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Ambient;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Boss;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Flying;
-import org.bukkit.entity.Fox;
-import org.bukkit.entity.Golem;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.WaterMob;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -64,9 +35,13 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.*;
+
 public class EntityListeners implements Listener {
 
     private final UltimateCatcher plugin;
+
+    private boolean ignoreNext = false;
 
     private final Map<UUID, UUID> eggs = new HashMap<>();
     private final Set<UUID> oncePerTick = new HashSet<>();
@@ -147,7 +122,6 @@ public class EntityListeners implements Listener {
                 isOffHand = true;
             }
         }
-
         if (event.getItem() == null) return;
 
         ItemStack item = event.getItem();
@@ -318,10 +292,18 @@ public class EntityListeners implements Listener {
                 return;
             }
         }
+
+        PlayerInteractEvent playerInteractEvent = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, null, entity.getLocation().getBlock(), BlockFace.UP);
+        Bukkit.getPluginManager().callEvent(playerInteractEvent);
+        if (playerInteractEvent.isCancelled()) {
+            reject(egg, catcher, true);
+            return;
+        }
+
         egg.remove();
 
         CompatibleMaterial spawnEgg = CompatibleMaterial.getSpawnEgg(entity.getType());
-        if(spawnEgg == null) {
+        if (spawnEgg == null) {
             return;
         }
         ItemStack item = spawnEgg.getItem();
