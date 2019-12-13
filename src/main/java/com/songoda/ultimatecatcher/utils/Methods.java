@@ -3,35 +3,14 @@ package com.songoda.ultimatecatcher.utils;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import java.util.UUID;
-import net.minecraft.server.v1_14_R1.EntityFox;
-import net.minecraft.server.v1_14_R1.GameProfileSerializer;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fox;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Panda;
-import org.bukkit.entity.Parrot;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
+import org.bukkit.*;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.util.UUID;
 
 public class Methods {
 
@@ -99,13 +78,11 @@ public class Methods {
             jsonObject.put("geneHidden", panda.getHiddenGene().name());
             jsonObject.put("geneMain", panda.getMainGene().name());
         } else if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Fox) {
-            Fox fox = ((Fox) entity);
-            EntityFox entityFox = ((CraftFox) fox).getHandle();
-            NBTTagCompound foxNBT = new NBTTagCompound();
-            entityFox.b(foxNBT);
-            UUID owner = GameProfileSerializer.b(foxNBT.getList("TrustedUUIDs", 10).getCompound(0));
-            jsonObject.put("trusted", true);
-            jsonObject.put("owner", owner.toString());
+            UUID ownerUUID = FoxNMS.getOwner(entity);
+            if (ownerUUID != null) {
+                jsonObject.put("trusted", true);
+                jsonObject.put("owner", ownerUUID.toString());
+            }
         }
 
         return jsonObject.toJSONString();
@@ -139,7 +116,7 @@ public class Methods {
                 ((Tameable) entity).setTamed((boolean) tamed);
                 Object owner = jsonObject.get("owner");
                 if (owner != null)
-                    ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString((String)owner)));
+                    ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString((String) owner)));
             }
 
             double health = (double) jsonObject.get("health");
@@ -208,17 +185,9 @@ public class Methods {
                     panda.setMainGene(Panda.Gene.valueOf((String) jsonObject.get("geneMain")));
                     break;
                 case FOX:
-                    Fox fox = (Fox) entity;
-                    EntityFox entityFox = ((CraftFox) fox).getHandle();
-                    NBTTagCompound foxNBT = new NBTTagCompound();
-                    entityFox.b(foxNBT);
-                    NBTTagCompound trustedCompound = new NBTTagCompound();
-                    Object owner = jsonObject.get("owner");
-                    UUID ownerUUID = UUID.fromString((String) owner);
-                    trustedCompound.setLong("L", ownerUUID.getLeastSignificantBits());
-                    trustedCompound.setLong("M", ownerUUID.getMostSignificantBits());
-                    foxNBT.getList("TrustedUUIDs", 10).add(trustedCompound);
-                    entityFox.a(foxNBT);
+                    String owner = (String) jsonObject.get("owner");
+                    if (owner != null && !owner.equals("00000000-0000-0000-0000-000000000000"))
+                        FoxNMS.applyOwner(entity, UUID.fromString(owner));
                     break;
             }
 

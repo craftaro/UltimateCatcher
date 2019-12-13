@@ -12,14 +12,15 @@ import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
+import com.songoda.ultimatecatcher.utils.FoxNMS;
 import com.songoda.ultimatecatcher.utils.Methods;
-import net.minecraft.server.v1_14_R1.EntityFox;
-import net.minecraft.server.v1_14_R1.GameProfileSerializer;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.EntityFox;
+import net.minecraft.server.v1_15_R1.GameProfileSerializer;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftFox;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftFox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -35,6 +36,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class EntityListeners implements Listener {
@@ -263,14 +266,13 @@ public class EntityListeners implements Listener {
                 && ((Tameable) entity).isTamed()
                 && ((Tameable) entity).getOwner().getUniqueId() != player.getUniqueId()) {
             plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
-            reject(egg, catcher, true);
             return;
 
         }
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-            if (!isPlayerTrusted(entity, player)
-                    && !isFoxWild(entity)
+            if (!FoxNMS.isPlayerTrusted(entity, player)
+                    && !FoxNMS.isFoxWild(entity)
                     && Settings.REJECT_TAMED.getBoolean()) {
                 plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
                 reject(egg, catcher, true);
@@ -336,11 +338,12 @@ public class EntityListeners implements Listener {
         if (entity instanceof Ageable)
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult") : plugin.getLocale().getMessage("general.catcher.baby")).getMessage());
 
-        if (entity instanceof Tameable && ((Tameable) entity).isTamed())
+        if (entity instanceof Tameable && ((Tameable) entity).isTamed()) {
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
+        }
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-            if (isPlayerTrusted(entity, player) || !isFoxWild(entity))
+            if (FoxNMS.isPlayerTrusted(entity, player) || !FoxNMS.isFoxWild(entity))
                 lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
         }
 
@@ -368,29 +371,5 @@ public class EntityListeners implements Listener {
 
     public Map<UUID, UUID> getEggs() {
         return eggs;
-    }
-
-    private boolean isPlayerTrusted(Entity entity, Player player) {
-        // Foxes are only in 1.14, no reflection needed.
-        if (!(entity instanceof Fox)) return false;
-        Fox fox = (Fox) entity;
-        if (!ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
-        EntityFox entityFox = ((CraftFox) fox).getHandle();
-        NBTTagCompound foxNBT = new NBTTagCompound();
-        entityFox.b(foxNBT);
-        if (foxNBT.getList("TrustedUUIDs", 10).contains(GameProfileSerializer.a(player.getUniqueId()))) return true;
-
-        return false;
-    }
-
-    private boolean isFoxWild(Entity entity) {
-        if (!(entity instanceof Fox)) return true;
-        Fox fox = (Fox) entity;
-        if (!ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) return false;
-        EntityFox entityFox = ((CraftFox) fox).getHandle();
-        NBTTagCompound foxNBT = new NBTTagCompound();
-        entityFox.b(foxNBT);
-        if (foxNBT.getList("TrustedUUIDs", 10) == null || foxNBT.getList("TrustedUUIDs", 10).isEmpty()) return true;
-        return false;
     }
 }
