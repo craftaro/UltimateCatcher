@@ -14,13 +14,9 @@ import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.FoxNMS;
 import com.songoda.ultimatecatcher.utils.Methods;
-import net.minecraft.server.v1_15_R1.EntityFox;
-import net.minecraft.server.v1_15_R1.GameProfileSerializer;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftFox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -36,15 +32,11 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class EntityListeners implements Listener {
 
     private final UltimateCatcher plugin;
-
-    private boolean ignoreNext = false;
 
     private final Map<UUID, UUID> eggs = new HashMap<>();
     private final Set<UUID> oncePerTick = new HashSet<>();
@@ -125,7 +117,8 @@ public class EntityListeners implements Listener {
                 isOffHand = true;
             }
         }
-        if (event.getItem() == null) return;
+        if (event.getItem() == null
+                || event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.SPAWNER) return;
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
