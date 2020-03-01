@@ -15,15 +15,21 @@ public class DispenserListeners implements Listener {
     @EventHandler
     public void onDispense(BlockDispenseEvent event) {
         ItemStack item = event.getItem();
-        if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
-            MaterialData materialData = event.getBlock().getState().getData();
-            Dispenser dispenser = (Dispenser) materialData;
-            BlockFace face = dispenser.getFacing();
+        if (item.getItemMeta() != null && item.getItemMeta().hasDisplayName()) {
+            String displayName = item.getItemMeta().getDisplayName()
+                    .replace(String.valueOf(ChatColor.COLOR_CHAR), "");
+            if (displayName.startsWith("UCI")) {
+                event.setCancelled(true);
+            } else if (displayName.startsWith("UC-")) {
+                MaterialData materialData = event.getBlock().getState().getData();
+                Dispenser dispenser = (Dispenser) materialData;
+                BlockFace face = dispenser.getFacing();
 
-            String[] split = item.getItemMeta().getDisplayName().split("~");
-            String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
+                String[] split = item.getItemMeta().getDisplayName().split("~");
+                String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-            Methods.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
+                Methods.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
+            }
         }
     }
 }
