@@ -1,6 +1,6 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.ultimatecatcher.utils.Methods;
+import com.songoda.ultimatecatcher.utils.EntityUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -28,7 +28,7 @@ public class DispenserListeners implements Listener {
                 String[] split = item.getItemMeta().getDisplayName().split("~");
                 String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-                Methods.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
+                EntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
             }
         }
     }

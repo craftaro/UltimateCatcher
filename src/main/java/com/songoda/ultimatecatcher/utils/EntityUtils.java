@@ -12,7 +12,7 @@ import org.json.simple.parser.ParseException;
 
 import java.util.UUID;
 
-public class Methods {
+public class EntityUtils {
 
     public static String getFormattedEntityType(EntityType type) {
         return UltimateCatcher.getInstance().getMobConfig().getString("Mobs." + type.name() + ".Display Name");
@@ -196,19 +196,5 @@ public class Methods {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static String formatText(String text) {
-        if (text == null || text.equals(""))
-            return "";
-        return formatText(text, false);
-    }
-
-    public static String formatText(String text, boolean cap) {
-        if (text == null || text.equals(""))
-            return "";
-        if (cap)
-            text = text.substring(0, 1).toUpperCase() + text.substring(1);
-        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }

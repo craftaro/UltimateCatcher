@@ -12,8 +12,8 @@ import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
+import com.songoda.ultimatecatcher.utils.EntityUtils;
 import com.songoda.ultimatecatcher.utils.FoxNMS;
-import com.songoda.ultimatecatcher.utils.Methods;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -203,7 +203,7 @@ public class EntityListeners implements Listener {
         ConfigurationSection configurationSection = plugin.getMobConfig();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
 
-        String formatted = Methods.getFormattedEntityType(entity.getType());
+        String formatted = EntityUtils.getFormattedEntityType(entity.getType());
 
         if (!offlinePlayer.isOnline() || formatted == null) {
             reject(egg, catcher, true);
@@ -235,7 +235,7 @@ public class EntityListeners implements Listener {
                 || entity instanceof Flying || entity instanceof Slime))) {
 
             plugin.getLocale().getMessage("event.catch.notenabled")
-                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                    .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                     .sendPrefixedMessage(player);
 
             reject(egg, catcher, true);
@@ -248,7 +248,7 @@ public class EntityListeners implements Listener {
             egg.getWorld().playSound(egg.getLocation(), CompatibleSound.ENTITY_VILLAGER_NO.getSound(), 1L, 1L);
 
             plugin.getLocale().getMessage("event.catch.failed")
-                    .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                    .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                     .sendPrefixedMessage(player);
 
             return;
@@ -280,7 +280,7 @@ public class EntityListeners implements Listener {
 
                 plugin.getLocale().getMessage("event.catch.cantafford")
                         .processPlaceholder("amount", cost)
-                        .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                        .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                         .sendPrefixedMessage(player);
 
                 reject(egg, catcher, true);
@@ -309,17 +309,17 @@ public class EntityListeners implements Listener {
             entity.remove();
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(TextUtils.convertToInvisibleString("UC-" + Methods.serializeEntity(entity) + "~")
+        meta.setDisplayName(com.songoda.core.utils.TextUtils.convertToInvisibleString("UC-" + EntityUtils.serializeEntity(entity) + "~")
                 + plugin.getLocale().getMessage("general.catcher.spawn")
                 .processPlaceholder("type",
-                        Methods.formatText(entity.getCustomName() != null
+                        TextUtils.formatText(entity.getCustomName() != null
                                 && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
                                 && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(entity)) ? entity.getCustomName()
-                                : Methods.getFormattedEntityType(entity.getType()))).getMessage());
+                                : EntityUtils.getFormattedEntityType(entity.getType()))).getMessage());
 
         List<String> lore = new ArrayList<>();
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.type")
-                .processPlaceholder("value", Methods.getFormattedEntityType(entity.getType()))
+                .processPlaceholder("value", EntityUtils.getFormattedEntityType(entity.getType()))
                 .getMessage());
 
         double health = Math.round(entity.getHealth() * 100.0) / 100.0;
@@ -344,7 +344,7 @@ public class EntityListeners implements Listener {
         item.setItemMeta(meta);
 
         plugin.getLocale().getMessage("event.catch.success")
-                .processPlaceholder("type", Methods.getFormattedEntityType(entity.getType()))
+                .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                 .sendPrefixedMessage(player);
 
         entity.getWorld().dropItem(event.getEntity().getLocation(), item);

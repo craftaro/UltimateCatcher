@@ -9,6 +9,7 @@ import com.songoda.core.configuration.Config;
 import com.songoda.core.gui.GuiManager;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.commands.CommandGive;
 import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
@@ -21,7 +22,6 @@ import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
-import com.songoda.ultimatecatcher.utils.Methods;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -123,7 +123,7 @@ public class UltimateCatcher extends SongodaPlugin {
                     && value != EntityType.ENDER_DRAGON
                     && value != EntityType.IRON_GOLEM) {
                 mobConfig.setDefault("Mobs." + value.name() + ".Enabled", true)
-                        .setDefault("Mobs." + value.name() + ".Display Name", Methods.formatText(value.name().toLowerCase().replace("_", " "), true));
+                        .setDefault("Mobs." + value.name() + ".Display Name", TextUtils.formatText(value.name().toLowerCase().replace("_", " "), true));
             }
         }
         mobConfig.setRootNodeSpacing(1).setCommentSpacing(0);

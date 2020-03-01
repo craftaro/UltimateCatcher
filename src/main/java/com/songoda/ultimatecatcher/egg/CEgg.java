@@ -3,7 +3,6 @@ package com.songoda.ultimatecatcher.egg;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.utils.Methods;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,10 +25,10 @@ public class CEgg {
 
     public ItemStack toItemStack() {
         ItemStack item = new ItemStack(ServerVersion.isServerVersionAtLeast(ServerVersion.V1_13)
-                ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte)56);
+                ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte) 56);
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(TextUtils.convertToInvisibleString("UCI;" + key + ";") + Methods.formatText(name));
+        meta.setDisplayName(com.songoda.core.utils.TextUtils.convertToInvisibleString("UCI;" + key + ";") + TextUtils.formatText(name));
 
         // ToDo: Translate this.
         List<String> lore = new ArrayList<>();
