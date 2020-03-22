@@ -28,3 +28,5 @@ event:
     notenabled: '&7You cannot capture a &6%type%&7.'
     cantafford: '&7You need &6$%amount% &7in order to catch a &6%type%&7.'
     notyours: '&cYou cannot catch entities tamed by others.'
+    blockedcatchingworld: '&cCatching entities in world &4%world%&c is disabled.'
+    blockedspawningworld: '&cSpawning caught entities in world &4%world%&c is disabled.'

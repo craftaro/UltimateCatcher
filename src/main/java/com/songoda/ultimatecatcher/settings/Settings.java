@@ -5,6 +5,7 @@ import com.songoda.core.configuration.ConfigSetting;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class Settings {
@@ -17,6 +18,16 @@ public class Settings {
     public static final ConfigSetting REJECT_TAMED = new ConfigSetting(config, "Main.Reject Tamed Entities That Are Not Yours", true,
             "Should players attempting to tame another players tamed entity",
             "be rejected?");
+
+    public static final ConfigSetting STOP_DISPENSER_IN_WORLD = new ConfigSetting(config, "Main.Block Dispenser In Blocked Spawning Worlds", false,
+            "Should dispensers still spawn caught mobs even though it's in a blocked spawning world?");
+
+    public static final ConfigSetting BLOCKED_CATCHING_WORLDS = new ConfigSetting(config, "Main.Blocked Catching Worlds", Arrays.asList("world_nether"),
+            "Which worlds should players not be allowed to catch mobs?");
+
+    public static final ConfigSetting BLOCKED_SPAWNING_WORLDS = new ConfigSetting(config, "Main.Blocked Spawning Worlds", Arrays.asList("world_nether"),
+            "Which worlds should players not be able to spawn caught mobs?");
+
 
     public static final ConfigSetting ECONOMY_PLUGIN = new ConfigSetting(config, "Main.Economy", EconomyManager.getEconomy() == null ? "Vault" : EconomyManager.getEconomy().getName(),
             "Which economy plugin should be used?",

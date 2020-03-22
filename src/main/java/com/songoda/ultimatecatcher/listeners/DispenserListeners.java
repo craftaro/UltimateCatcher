@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.listeners;
 
+import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.block.BlockFace;
@@ -19,6 +20,8 @@ public class DispenserListeners implements Listener {
             String displayName = item.getItemMeta().getDisplayName()
                     .replace(String.valueOf(ChatColor.COLOR_CHAR), "");
             if (displayName.startsWith("UCI")) {
+                event.setCancelled(true);
+            } else if(Settings.STOP_DISPENSER_IN_WORLD.getBoolean())  {
                 event.setCancelled(true);
             } else if (displayName.startsWith("UC-")) {
                 MaterialData materialData = event.getBlock().getState().getData();

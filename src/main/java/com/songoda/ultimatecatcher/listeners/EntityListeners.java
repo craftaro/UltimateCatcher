@@ -134,6 +134,11 @@ public class EntityListeners implements Listener {
             event.setCancelled(true);
             if (isOffHand) return;
 
+            if (Settings.BLOCKED_SPAWNING_WORLDS.getStringList().contains(player.getEyeLocation().getWorld().getName()) && !player.hasPermission("ultimatecatcher.bypass.blockedspawningworld")) {
+                plugin.getLocale().getMessage("event.catch.blockedspawningworld").processPlaceholder("world", player.getWorld().getName()).sendPrefixedMessage(player);
+                return;
+            }
+
             Location location = player.getEyeLocation().clone();
 
             ItemStack toThrow = item.clone();
@@ -213,6 +218,11 @@ public class EntityListeners implements Listener {
         double cost = catcher.getCost();
         Player player = offlinePlayer.getPlayer();
 
+        if (Settings.BLOCKED_CATCHING_WORLDS.getStringList().contains(player.getWorld().getName()) && !player.hasPermission("ultimatecatcher.bypass.blockedcatchingworld")) {
+            plugin.getLocale().getMessage("event.catch.blockedcatchingworld").processPlaceholder("world", player.getWorld().getName()).sendPrefixedMessage(player);
+            reject(egg, catcher, true);
+            return;
+        }
 
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)) {
