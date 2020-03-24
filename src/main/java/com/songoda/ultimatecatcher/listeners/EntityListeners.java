@@ -118,7 +118,8 @@ public class EntityListeners implements Listener {
             }
         }
         if (event.getItem() == null
-                || event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.SPAWNER) return;
+                || event.getClickedBlock() != null
+                && event.getClickedBlock().getType() == CompatibleMaterial.SPAWNER.getMaterial()) return;
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
