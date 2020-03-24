@@ -1,9 +1,6 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.CompatibleParticleHandler;
-import com.songoda.core.compatibility.CompatibleSound;
-import com.songoda.core.compatibility.ServerVersion;
+import com.songoda.core.compatibility.*;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.core.utils.ItemUtils;
@@ -28,7 +25,6 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -47,24 +43,18 @@ public class EntityListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntitySmack(PlayerInteractEntityEvent event) {
-        boolean isOffHand = false;
-        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            if (event.getHand() == EquipmentSlot.OFF_HAND) {
-                isOffHand = true;
-            }
-        }
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (useEgg(event.getPlayer(), item, isOffHand))
+        if (useEgg(event.getPlayer(), item, CompatibleHand.getHand(event)))
             event.setCancelled(true);
     }
 
-    private boolean useEgg(Player player, ItemStack item, boolean isOffHand) {
+    private boolean useEgg(Player player, ItemStack item, CompatibleHand hand) {
         if (item.getItemMeta().hasDisplayName()) {
             String name = item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "");
             if (!name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
-            if (isOffHand || oncePerTick.contains(player.getUniqueId())) return true;
+            if (oncePerTick.contains(player.getUniqueId())) return true;
 
             String[] split = name.split(";");
 
@@ -84,7 +74,8 @@ public class EntityListeners implements Listener {
 
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
-            ItemUtils.takeActiveItem(player);
+            if (player.getGameMode() != GameMode.CREATIVE)
+                ItemUtils.takeActiveItem(player, hand);
             return true;
         }
 
@@ -111,12 +102,8 @@ public class EntityListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onToss(PlayerInteractEvent event) {
-        boolean isOffHand = false;
-        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
-            if (event.getHand() == EquipmentSlot.OFF_HAND) {
-                isOffHand = true;
-            }
-        }
+        CompatibleHand hand = CompatibleHand.getHand(event);
+
         if (event.getItem() == null
                 || event.getClickedBlock() != null
                 && event.getClickedBlock().getType() == CompatibleMaterial.SPAWNER.getMaterial()) return;
@@ -128,12 +115,11 @@ public class EntityListeners implements Listener {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK
                 && event.getAction() != Action.LEFT_CLICK_AIR
                 && event.getAction() != Action.PHYSICAL
-                && useEgg(player, item, isOffHand)) {
+                && useEgg(player, item, hand)) {
             event.setCancelled(true);
         } else if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
             event.setCancelled(true);
-            if (isOffHand) return;
 
             if (Settings.BLOCKED_SPAWNING_WORLDS.getStringList().contains(player.getEyeLocation().getWorld().getName()) && !player.hasPermission("ultimatecatcher.bypass.blockedspawningworld")) {
                 plugin.getLocale().getMessage("event.catch.blockedspawningworld").processPlaceholder("world", player.getWorld().getName()).sendPrefixedMessage(player);
@@ -162,7 +148,8 @@ public class EntityListeners implements Listener {
             egg.setVelocity(player.getLocation().getDirection().normalize().multiply(2));
 
             EggTrackingTask.addEgg(egg);
-            ItemUtils.takeActiveItem(player);
+            if (player.getGameMode() != GameMode.CREATIVE)
+                ItemUtils.takeActiveItem(player, hand);
         }
     }
 
