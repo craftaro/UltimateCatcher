@@ -227,10 +227,10 @@ public class EntityListeners implements Listener {
         if (!(player.hasPermission("ultimatecatcher.catch.*")
                 || (player.hasPermission("ultimatecatcher.catch.peaceful." + entity.getType().name())
                 && (entity instanceof Animals || entity instanceof Ambient || entity instanceof WaterMob
-                || entity instanceof Golem || entity instanceof AbstractVillager))
+                || entity instanceof Golem && !entity.getType().name().equals("SHULKER") || entity instanceof AbstractVillager))
                 || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()))
                 && (entity instanceof Monster || entity instanceof Boss
-                || entity instanceof Flying || entity instanceof Slime))) {
+                || entity instanceof Flying || entity instanceof Slime|| entity.getType().name().equals("SHULKER")))) {
 
             plugin.getLocale().getMessage("event.catch.notenabled")
                     .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
