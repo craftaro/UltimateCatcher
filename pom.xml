@@ -81,23 +81,15 @@
     </build>
     <repositories>
         <repository>
-            <id>private</id>
-            <url>http://repo.songoda.com/artifactory/private/</url>
-        </repository>
-        <repository>
             <id>public</id>
             <url>http://repo.songoda.com/artifactory/public/</url>
-        </repository>
-        <repository>
-            <id>reserve-repo</id>
-            <url>https://dl.bintray.com/theneweconomy/java/</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.15</version>
+            <version>1.15.2</version>
         </dependency>
         <dependency>
             <groupId>com.songoda</groupId>
