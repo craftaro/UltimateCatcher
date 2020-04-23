@@ -48,7 +48,7 @@ public class EntityListeners implements Listener {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (useEgg(event.getPlayer(), item, CompatibleHand.getHand(event)))
+        if (useEgg(event.getPlayer(), item, CompatibleHand.getHand(event)) || NmsManager.getNbt().of(item).has("UC"))
             event.setCancelled(true);
     }
 
@@ -56,13 +56,10 @@ public class EntityListeners implements Listener {
         if (item.getItemMeta().hasDisplayName()) {
             String name = item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-
             if (!NmsManager.getNbt().of(item).has("UCI")
 
                     // Legacy Crap
                     && !name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
-
-            System.out.println("test " + NmsManager.getNbt().of(item).has("UCI"));
 
             if (oncePerTick.contains(player.getUniqueId())) return true;
 
