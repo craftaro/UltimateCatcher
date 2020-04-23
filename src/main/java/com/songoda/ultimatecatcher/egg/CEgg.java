@@ -1,6 +1,8 @@
 package com.songoda.ultimatecatcher.egg;
 
 import com.songoda.core.compatibility.ServerVersion;
+import com.songoda.core.nms.NmsManager;
+import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import org.bukkit.Material;
@@ -28,7 +30,7 @@ public class CEgg {
                 ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte) 56);
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(com.songoda.core.utils.TextUtils.convertToInvisibleString("UCI;" + key + ";") + TextUtils.formatText(name));
+        meta.setDisplayName(TextUtils.formatText(name));
 
         // ToDo: Translate this.
         List<String> lore = new ArrayList<>();
@@ -41,7 +43,12 @@ public class CEgg {
 
         item.setItemMeta(meta);
 
-        return item;
+        NBTItem nbtItem = NmsManager.getNbt().of(item);
+
+        nbtItem.set("UCI", true);
+        nbtItem.set("type", key);
+
+        return nbtItem.finish();
     }
 
     public String getKey() {

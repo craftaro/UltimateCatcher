@@ -1,6 +1,7 @@
 package com.songoda.ultimatecatcher.tasks;
 
 import com.songoda.core.compatibility.ServerVersion;
+import com.songoda.core.nms.NmsManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
 import org.bukkit.ChatColor;
@@ -44,10 +45,17 @@ public class EggTrackingTask extends BukkitRunnable {
             }
 
             if (item.isOnGround() && item.getTicksLived() > 10 || item.getTicksLived() > 50) {
-                String[] split = item.getItemStack().getItemMeta().getDisplayName().split("~");
-                String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-                Entity entity = EntityUtils.spawnEntity(item.getLocation(), json);
+                String displayName = item.getItemStack().getItemMeta().getDisplayName();
+
+                Entity entity;
+                if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
+                    entity = EntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
+                } else {
+                    String[] split = item.getItemStack().getItemMeta().getDisplayName().split("~");
+                    String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
+                    entity = EntityUtils.spawnEntity(item.getLocation(), json);
+                }
 
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
                     entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);

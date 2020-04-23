@@ -3,6 +3,8 @@ package com.songoda.ultimatecatcher.listeners;
 import com.songoda.core.compatibility.*;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.core.nms.NmsManager;
+import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.core.utils.ItemUtils;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
@@ -53,12 +55,25 @@ public class EntityListeners implements Listener {
     private boolean useEgg(Player player, ItemStack item, CompatibleHand hand) {
         if (item.getItemMeta().hasDisplayName()) {
             String name = item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "");
-            if (!name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
+
+
+            if (!NmsManager.getNbt().of(item).has("UCI")
+
+                    // Legacy Crap
+                    && !name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
+
+            System.out.println("test " + NmsManager.getNbt().of(item).has("UCI"));
+
             if (oncePerTick.contains(player.getUniqueId())) return true;
 
-            String[] split = name.split(";");
-
-            String eggType = split.length == 3 ? split[1] : plugin.getEggManager().getFirstEgg().getKey();
+            String eggType;
+            if (NmsManager.getNbt().of(item).has("UCI")) {
+                eggType = NmsManager.getNbt().of(item).getNBTObject("type").asString();
+            } else {
+                // More legacy crap.
+                String[] split = name.split(";");
+                eggType = split.length == 3 ? split[1] : plugin.getEggManager().getFirstEgg().getKey();
+            }
 
             Location location = player.getEyeLocation();
             Egg egg = location.getWorld().spawn(location, Egg.class);
@@ -117,7 +132,8 @@ public class EntityListeners implements Listener {
                 && event.getAction() != Action.PHYSICAL
                 && useEgg(player, item, hand)) {
             event.setCancelled(true);
-        } else if (item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-")) {
+        } else if (item.getItemMeta().hasDisplayName()
+                && (item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-") || NmsManager.getNbt().of(item).has("UC"))) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
             event.setCancelled(true);
 
@@ -128,7 +144,10 @@ public class EntityListeners implements Listener {
 
             Location location = player.getEyeLocation().clone();
 
-            ItemStack toThrow = item.clone();
+            NBTItem nbtItem = NmsManager.getNbt().of(item);
+            nbtItem.set("UCI", true);
+            ItemStack toThrow = nbtItem.finish();
+
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                     toThrow.removeEnchantment(Enchantment.ARROW_KNOCKBACK), 50);
             toThrow.setAmount(1);
@@ -230,7 +249,7 @@ public class EntityListeners implements Listener {
                 || entity instanceof Golem && !entity.getType().name().equals("SHULKER") || entity instanceof AbstractVillager))
                 || (player.hasPermission("ultimatecatcher.catch.hostile." + entity.getType().name()))
                 && (entity instanceof Monster || entity instanceof Boss
-                || entity instanceof Flying || entity instanceof Slime|| entity.getType().name().equals("SHULKER")))) {
+                || entity instanceof Flying || entity instanceof Slime || entity.getType().name().equals("SHULKER")))) {
 
             plugin.getLocale().getMessage("event.catch.notenabled")
                     .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
@@ -307,8 +326,7 @@ public class EntityListeners implements Listener {
             entity.remove();
 
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(com.songoda.core.utils.TextUtils.convertToInvisibleString("UC-" + EntityUtils.serializeEntity(entity) + "~")
-                + plugin.getLocale().getMessage("general.catcher.spawn")
+        meta.setDisplayName(plugin.getLocale().getMessage("general.catcher.spawn")
                 .processPlaceholder("type",
                         TextUtils.formatText(entity.getCustomName() != null
                                 && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
@@ -345,7 +363,7 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                 .sendPrefixedMessage(player);
 
-        entity.getWorld().dropItem(event.getEntity().getLocation(), item);
+        entity.getWorld().dropItem(event.getEntity().getLocation(), EntityUtils.serializeEntity(item, entity));
 
         CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
         entity.getWorld().playSound(entity.getLocation(), CompatibleSound.ITEM_FIRECHARGE_USE.getSound(), 1L, 1L);
