@@ -82,6 +82,7 @@ public class EntityUtils {
                 ItemStack[] items = chestedHorse.getInventory().getContents();
                 if (items.length != 0)
                     nbtItem.set("inventory", ItemUtils.itemStackArrayToBase64(items));
+                nbtItem.set("size", chestedHorse.getInventory().getSize());
             case HORSE:
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)) {
                     AbstractHorse abstractHorse = ((AbstractHorse) entity);
@@ -205,6 +206,8 @@ public class EntityUtils {
                 if (nbtItem.has("inventory"))
                     chestedHorse.getInventory().setContents(ItemUtils
                             .itemStackArrayFromBase64(nbtItem.getNBTObject("inventory").asString()));
+
+                chestedHorse.getInventory().setMaxStackSize(nbtItem.getNBTObject("size").asInt());
             case HORSE:
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)) {
                     AbstractHorse abstractHorse = (AbstractHorse) entity;
