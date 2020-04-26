@@ -124,9 +124,11 @@ public class EntityUtils {
                 break;
             case FOX:
                 UUID ownerUUID = FoxNMS.getOwner(entity);
+                System.out.println(ownerUUID + " > 1");
                 if (ownerUUID != null) {
                     nbtItem.set("trusted", true);
                     nbtItem.set("owner", ownerUUID.toString());
+                    System.out.println(ownerUUID.toString() + " > 2");
                 }
                 break;
         }
@@ -258,7 +260,7 @@ public class EntityUtils {
                 break;
             case FOX:
                 String owner = nbtItem.getNBTObject("owner").asString();
-                if (owner != null && !owner.equals("00000000-0000-0000-0000-000000000000"))
+                if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
                     FoxNMS.applyOwner(entity, UUID.fromString(owner));
                 break;
         }
