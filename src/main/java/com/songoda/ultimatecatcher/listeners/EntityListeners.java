@@ -189,10 +189,10 @@ public class EntityListeners implements Listener {
                                 && entity.getType() != EntityType.PLAYER
                                 && entity.getType() == EntityType.CHICKEN).findFirst().ifPresent(Entity::remove), 0L);
 
-        LivingEntity entity = null;
+        Entity entity = null;
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11))
-            entity = (LivingEntity) event.getHitEntity();
+            entity = event.getHitEntity();
         else {
             Optional<Entity> found = egg.getWorld().getNearbyEntities(egg.getLocation(), 2, 2, 2).stream()
                     .filter(e -> e instanceof LivingEntity
@@ -200,14 +200,16 @@ public class EntityListeners implements Listener {
                             && e.getTicksLived() > 20)
                     .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation()))).findFirst();
             if (found.isPresent()) {
-                entity = (LivingEntity) found.get();
+                entity = found.get();
             }
         }
 
-        if (entity == null || entity.getType() == EntityType.PLAYER) {
+        if (!(entity instanceof LivingEntity) || entity.getType() == EntityType.PLAYER) {
             reject(egg, catcher, false);
             return;
         }
+
+        LivingEntity livingEntity = (LivingEntity) entity;
 
         ConfigurationSection configurationSection = plugin.getMobConfig();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(eggs.get(egg.getUniqueId()));
@@ -317,8 +319,8 @@ public class EntityListeners implements Listener {
         }
         ItemStack item = spawnEgg.getItem();
 
-        if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(entity))
-            EntityStackerManager.getStacker().removeOne(entity);
+        if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(livingEntity))
+            EntityStackerManager.getStacker().removeOne(livingEntity);
         else
             entity.remove();
 
@@ -327,7 +329,7 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("type",
                         TextUtils.formatText(entity.getCustomName() != null
                                 && !entity.getCustomName().contains(String.valueOf(ChatColor.COLOR_CHAR))
-                                && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(entity)) ? entity.getCustomName()
+                                && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(livingEntity)) ? entity.getCustomName()
                                 : EntityUtils.getFormattedEntityType(entity.getType()))).getMessage());
 
         List<String> lore = new ArrayList<>();
@@ -335,8 +337,8 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("value", EntityUtils.getFormattedEntityType(entity.getType()))
                 .getMessage());
 
-        double health = Math.round(entity.getHealth() * 100.0) / 100.0;
-        double max = entity.getMaxHealth();
+        double health = Math.round(livingEntity.getHealth() * 100.0) / 100.0;
+        double max = livingEntity.getMaxHealth();
 
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
                 .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max") : health + "/" + max)).getMessage());
@@ -360,7 +362,7 @@ public class EntityListeners implements Listener {
                 .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                 .sendPrefixedMessage(player);
 
-        entity.getWorld().dropItem(event.getEntity().getLocation(), EntityUtils.serializeEntity(item, entity));
+        entity.getWorld().dropItem(event.getEntity().getLocation(), EntityUtils.serializeEntity(item, livingEntity));
 
         CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
         entity.getWorld().playSound(entity.getLocation(), CompatibleSound.ITEM_FIRECHARGE_USE.getSound(), 1L, 1L);
