@@ -60,6 +60,7 @@ public class EntityUtils {
             case VILLAGER:
                 Villager villager = ((Villager) entity);
                 nbtItem.set("profession", villager.getProfession().name());
+                nbtItem.set("experience", villager.getVillagerExperience());
                 break;
             case SLIME:
                 Slime slime = ((Slime) entity);
@@ -187,6 +188,8 @@ public class EntityUtils {
                 Villager villager = (Villager) entity;
                 villager.setProfession(Villager.
                         Profession.valueOf(nbtItem.getNBTObject("profession").asString()));
+                int experience = nbtItem.getNBTObject("experience").asInt();
+                villager.setVillagerExperience(experience == 0 ? 1 : 0);
                 break;
             case SLIME:
                 Slime slime = (Slime) entity;
