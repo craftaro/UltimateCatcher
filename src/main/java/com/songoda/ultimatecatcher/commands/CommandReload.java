@@ -29,7 +29,7 @@ public class CommandReload extends AbstractCommand {
 
     @Override
     public String getSyntax() {
-        return "/uc reload";
+        return "reload";
     }
 
     @Override

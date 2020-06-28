@@ -124,14 +124,14 @@ public class EntityUtils {
                 nbtItem.set("geneMain", panda.getMainGene().name());
                 break;
             case FOX:
-                UUID ownerUUID = FoxNMS.getOwner(entity);
-                System.out.println(ownerUUID + " > 1");
-                if (ownerUUID != null) {
-                    nbtItem.set("trusted", true);
-                    nbtItem.set("owner", ownerUUID.toString());
-                    System.out.println(ownerUUID.toString() + " > 2");
-                }
+                AnimalTamer animalTamer = ((Fox) entity).getFirstTrustedPlayer();
+                if (animalTamer == null)
+                    break;
+                UUID ownerUUID = animalTamer.getUniqueId();
+                nbtItem.set("trusted", true);
+                nbtItem.set("owner", ownerUUID.toString());
                 break;
+
         }
         return nbtItem.finish();
     }
@@ -264,7 +264,7 @@ public class EntityUtils {
             case FOX:
                 String owner = nbtItem.getNBTObject("owner").asString();
                 if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
-                    FoxNMS.applyOwner(entity, UUID.fromString(owner));
+                    ((Fox)entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
                 break;
         }
 

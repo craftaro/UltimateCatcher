@@ -61,7 +61,7 @@ public class CommandGive extends AbstractCommand {
         for (CEgg egg : UltimateCatcher.getInstance().getEggManager().getRegisteredEggs()) {
             keys.append("/").append(egg.getKey());
         }
-        return "/uc give <player/all> <" + keys.substring(1) + ">";
+        return "give <player/all> <" + keys.substring(1) + ">";
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.commands.CommandGive;
 import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
-import com.songoda.ultimatecatcher.commands.CommandUltimateCatcher;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.egg.EggBuilder;
 import com.songoda.ultimatecatcher.egg.EggManager;
@@ -74,7 +73,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
         // Register commands
         this.commandManager = new CommandManager(this);
-        this.commandManager.addCommand(new CommandUltimateCatcher(this))
+        this.commandManager.addMainCommand("uc")
                 .addSubCommands(
                         new CommandGive(this),
                         new CommandSettings(guiManager),

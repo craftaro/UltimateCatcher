@@ -6,8 +6,8 @@ softdepend: [UltimateStacker]
 author: songoda
 api-version: 1.13
 commands:
-  UltimateCatcher:
+  uc:
     description: I have no idea.
     default: true
-    aliases: [uc]
+    aliases: [UltimateCatcher]
     usage: /<command> [reload]

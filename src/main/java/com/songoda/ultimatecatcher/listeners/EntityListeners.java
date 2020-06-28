@@ -12,7 +12,6 @@ import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
-import com.songoda.ultimatecatcher.utils.FoxNMS;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
@@ -280,12 +279,14 @@ public class EntityListeners implements Listener {
         }
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-            if (!FoxNMS.isPlayerTrusted(entity, player)
-                    && !FoxNMS.isFoxWild(entity)
-                    && Settings.REJECT_TAMED.getBoolean()) {
-                plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
-                reject(egg, catcher, true);
-                return;
+            if (entity instanceof Fox) {
+                AnimalTamer tamer = ((Fox) entity).getFirstTrustedPlayer();
+                if (tamer != null && !tamer.getUniqueId().equals(player.getUniqueId())
+                        && Settings.REJECT_TAMED.getBoolean()) {
+                    plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
+                    reject(egg, catcher, true);
+                    return;
+                }
             }
         }
 
@@ -341,18 +342,23 @@ public class EntityListeners implements Listener {
         double max = livingEntity.getMaxHealth();
 
         lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
-                .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max") : health + "/" + max)).getMessage());
+                .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max").getMessage() : health + "/" + max)).getMessage());
 
         if (entity instanceof Ageable)
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult") : plugin.getLocale().getMessage("general.catcher.baby")).getMessage());
+            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult").getMessage() : plugin.getLocale().getMessage("general.catcher.baby").getMessage()).getMessage());
 
         if (entity instanceof Tameable && ((Tameable) entity).isTamed()) {
             lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
         }
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-            if (FoxNMS.isPlayerTrusted(entity, player) || !FoxNMS.isFoxWild(entity))
-                lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+            if (entity instanceof Fox) {
+                AnimalTamer tamer = ((Fox) entity).getFirstTrustedPlayer();
+                if (tamer != null && !tamer.getUniqueId().equals(player.getUniqueId())
+                        && Settings.REJECT_TAMED.getBoolean()) {
+                    lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+                }
+            }
         }
 
         meta.setLore(lore);

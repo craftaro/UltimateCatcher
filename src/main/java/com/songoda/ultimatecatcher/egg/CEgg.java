@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.egg;
 
+import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.core.nms.nbt.NBTItem;
@@ -26,8 +27,7 @@ public class CEgg {
     }
 
     public ItemStack toItemStack() {
-        ItemStack item = new ItemStack(ServerVersion.isServerVersionAtLeast(ServerVersion.V1_13)
-                ? Material.GHAST_SPAWN_EGG : Material.valueOf("MONSTER_EGG"), 1, (byte) 56);
+        ItemStack item = CompatibleMaterial.GHAST_SPAWN_EGG.getItem();
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(TextUtils.formatText(name));

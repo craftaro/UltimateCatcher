@@ -114,8 +114,8 @@ public class OldEntityUtils {
                     break;
                 case FOX:
                     String owner = (String) jsonObject.get("owner");
-                    if (owner != null && !owner.equals("00000000-0000-0000-0000-000000000000"))
-                        FoxNMS.applyOwner(entity, UUID.fromString(owner));
+                    if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
+                        ((Fox)entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
                     break;
             }
 
