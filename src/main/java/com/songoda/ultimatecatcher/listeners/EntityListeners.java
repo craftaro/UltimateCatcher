@@ -229,6 +229,13 @@ public class EntityListeners implements Listener {
             return;
         }
 
+        if (Bukkit.getPluginManager().isPluginEnabled("Citizens")) {
+            if (net.citizensnpcs.api.CitizensAPI.getNPCRegistry().isNPC(entity)) {
+                reject(egg, catcher, true);
+                return;
+            }
+        }
+
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)) {
             reject(egg, catcher, true);
@@ -265,7 +272,7 @@ public class EntityListeners implements Listener {
             plugin.getLocale().getMessage("event.catch.failed")
                     .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                     .sendPrefixedMessage(player);
-
+            reject(egg, catcher, true);
             return;
         }
 
@@ -274,8 +281,8 @@ public class EntityListeners implements Listener {
                 && ((Tameable) entity).isTamed()
                 && ((Tameable) entity).getOwner().getUniqueId() != player.getUniqueId()) {
             plugin.getLocale().getMessage("event.catch.notyours").sendPrefixedMessage(player);
+            reject(egg, catcher, true);
             return;
-
         }
 
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
