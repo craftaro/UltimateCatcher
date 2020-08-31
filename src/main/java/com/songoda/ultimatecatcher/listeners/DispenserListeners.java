@@ -4,7 +4,9 @@ import com.songoda.core.nms.NmsManager;
 import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
+import com.songoda.ultimatecatcher.utils.OldEntityUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,11 +35,13 @@ public class DispenserListeners implements Listener {
                 MaterialData materialData = event.getBlock().getState().getData();
                 Dispenser dispenser = (Dispenser) materialData;
                 BlockFace face = dispenser.getFacing();
-                EntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), item);
+                if (nbtItem.has("serialized_entity"))
+                    EntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), item);
+                else
+                    OldEntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), item);
             }
             return;
         }
-
 
         // Legacy stuff
         if (item.getItemMeta() != null && item.getItemMeta().hasDisplayName()) {
@@ -55,7 +59,7 @@ public class DispenserListeners implements Listener {
                 String[] split = item.getItemMeta().getDisplayName().split("~");
                 String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-                EntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
+                OldEntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), json);
             }
         }
     }

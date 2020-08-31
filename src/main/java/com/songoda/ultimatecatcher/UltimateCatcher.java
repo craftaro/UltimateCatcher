@@ -174,6 +174,11 @@ public class UltimateCatcher extends SongodaPlugin {
     }
 
     @Override
+    public void onDataLoad() {
+
+    }
+
+    @Override
     public void onConfigReload() {
         this.setLocale(Settings.LANGUGE_MODE.getString(), true);
     }

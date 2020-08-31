@@ -4,6 +4,7 @@ import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
+import com.songoda.ultimatecatcher.utils.OldEntityUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -49,12 +50,14 @@ public class EggTrackingTask extends BukkitRunnable {
                 String displayName = item.getItemStack().getItemMeta().getDisplayName();
 
                 Entity entity;
-                if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
+                if (NmsManager.getNbt().of(item.getItemStack()).has("serialized_entity")) {
                     entity = EntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
+                } else if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
+                    entity = OldEntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
                 } else {
                     String[] split = item.getItemStack().getItemMeta().getDisplayName().split("~");
                     String json = split[0].replace(String.valueOf(ChatColor.COLOR_CHAR), "");
-                    entity = EntityUtils.spawnEntity(item.getLocation(), json);
+                    entity = OldEntityUtils.spawnEntity(item.getLocation(), json);
                 }
 
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
