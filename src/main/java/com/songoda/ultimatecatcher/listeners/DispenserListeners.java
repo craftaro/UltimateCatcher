@@ -19,6 +19,8 @@ public class DispenserListeners implements Listener {
     public void onDispense(BlockDispenseEvent event) {
         ItemStack item = event.getItem();
 
+        if (event.getBlock().getType() != Material.DISPENSER) return;
+
         NBTItem nbtItem = NmsManager.getNbt().of(item);
         if (nbtItem.has("UCI")) {
             event.setCancelled(true);
