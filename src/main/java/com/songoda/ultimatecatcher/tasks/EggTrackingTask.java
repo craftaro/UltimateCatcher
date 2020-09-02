@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.tasks;
 
+import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.compatibility.ServerVersion;
@@ -51,9 +52,12 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 String displayName = item.getItemStack().getItemMeta().getDisplayName();
 
+                boolean inWater = CompatibleMaterial.getMaterial(item.getLocation().getBlock()) == CompatibleMaterial.WATER;
+
                 Entity entity;
                 if (NmsManager.getNbt().of(item.getItemStack()).has("serialized_entity")) {
-                    entity = EntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
+                    entity = EntityUtils.spawnEntity(inWater ? item.getLocation().getBlock().getLocation().add(.5,.5,.5)
+                            : item.getLocation(), item.getItemStack());
                 } else if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
                     entity = OldEntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
                 } else {
