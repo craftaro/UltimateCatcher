@@ -1,5 +1,7 @@
 package com.songoda.ultimatecatcher.tasks;
 
+import com.songoda.core.compatibility.CompatibleParticleHandler;
+import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
@@ -17,7 +19,7 @@ import java.util.Set;
 
 public class EggTrackingTask extends BukkitRunnable {
 
-    private static Set<Item> eggs = new HashSet<>();
+    private static final Set<Item> eggs = new HashSet<>();
 
     private static EggTrackingTask instance;
     private static UltimateCatcher plugin;
@@ -60,10 +62,8 @@ public class EggTrackingTask extends BukkitRunnable {
                     entity = OldEntityUtils.spawnEntity(item.getLocation(), json);
                 }
 
-                if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_9)) {
-                    entity.getWorld().spawnParticle(Particle.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-                    entity.getWorld().playSound(entity.getLocation(), Sound.ITEM_FIRECHARGE_USE, 1L, 1L);
-                }
+                CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+                CompatibleSound.ITEM_FIRECHARGE_USE.play(entity.getWorld(), entity.getLocation(),1L, 1L);
 
                 eggs.remove(item);
                 item.remove();
