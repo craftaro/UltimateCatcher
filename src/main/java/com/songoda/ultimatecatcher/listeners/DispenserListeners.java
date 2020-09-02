@@ -39,6 +39,8 @@ public class DispenserListeners implements Listener {
                     EntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), item);
                 else
                     OldEntityUtils.spawnEntity(event.getBlock().getRelative(face).getLocation().add(.5, 0, .5), item);
+                event.setCancelled(true);
+                ((org.bukkit.block.Dispenser)event.getBlock().getState()).getInventory().removeItem(event.getItem());
             }
             return;
         }
