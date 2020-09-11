@@ -103,11 +103,14 @@ public class UltimateCatcher extends SongodaPlugin {
                 ShapelessRecipe shapelessRecipe = ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)
                         ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
                         egg.toItemStack()) : new ShapelessRecipe(egg.toItemStack());
+
                 for (String item : egg.getRecipe()) {
                     String[] split = item.split(":");
-                    shapelessRecipe.addIngredient(Integer.valueOf(split[0]), Material.valueOf(split[1]));
+                    shapelessRecipe.addIngredient(Integer.parseInt(split[0]), Material.valueOf(split[1]));
                 }
-                Bukkit.addRecipe(shapelessRecipe);
+
+                if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null)
+                    Bukkit.addRecipe(shapelessRecipe);
             }
         }
     }
