@@ -3,14 +3,12 @@ package com.songoda.ultimatecatcher.tasks;
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.CompatibleSound;
-import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
 import com.songoda.ultimatecatcher.utils.OldEntityUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -56,7 +54,7 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 Entity entity;
                 if (NmsManager.getNbt().of(item.getItemStack()).has("serialized_entity")) {
-                    entity = EntityUtils.spawnEntity(inWater ? item.getLocation().getBlock().getLocation().add(.5,.5,.5)
+                    entity = EntityUtils.spawnEntity(inWater ? item.getLocation().getBlock().getLocation().add(.5, .5, .5)
                             : item.getLocation(), item.getItemStack());
                 } else if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
                     entity = OldEntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
@@ -66,10 +64,19 @@ public class EggTrackingTask extends BukkitRunnable {
                     entity = OldEntityUtils.spawnEntity(item.getLocation(), json);
                 }
 
-                CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-                CompatibleSound.ITEM_FIRECHARGE_USE.play(entity.getWorld(), entity.getLocation(),1L, 1L);
-
                 eggs.remove(item);
+
+                // Couldn't spawn
+                if (entity == null) {
+                    plugin.getEntityListeners().getEggs().remove(item.getUniqueId());
+                    item.getItemStack().removeEnchantment(Enchantment.ARROW_KNOCKBACK);
+                    item.setPickupDelay(1);
+                    continue;
+                }
+
+                CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
+                CompatibleSound.ITEM_FIRECHARGE_USE.play(entity.getWorld(), entity.getLocation(), 1L, 1L);
+
                 item.remove();
             }
         }
