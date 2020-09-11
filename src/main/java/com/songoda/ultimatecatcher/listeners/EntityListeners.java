@@ -177,6 +177,8 @@ public class EntityListeners implements Listener {
 
         String[] split = egg.getCustomName().split(";");
 
+        if (split.length < 2) return;
+
         CEgg catcher = plugin.getEggManager().getEgg(split[1]);
 
         if (catcher == null) return;
