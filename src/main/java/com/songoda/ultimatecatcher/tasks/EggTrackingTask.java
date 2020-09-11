@@ -4,6 +4,7 @@ import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.CompatibleSound;
 import com.songoda.core.nms.NmsManager;
+import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
 import com.songoda.ultimatecatcher.utils.OldEntityUtils;
@@ -69,8 +70,13 @@ public class EggTrackingTask extends BukkitRunnable {
                 // Couldn't spawn
                 if (entity == null) {
                     plugin.getEntityListeners().getEggs().remove(item.getUniqueId());
+
                     item.getItemStack().removeEnchantment(Enchantment.ARROW_KNOCKBACK);
                     item.setPickupDelay(1);
+
+                    NBTItem newItem = NmsManager.getNbt().of(item.getItemStack());
+                    newItem.remove("UCI");
+                    item.setItemStack(newItem.finish());
                     continue;
                 }
 
