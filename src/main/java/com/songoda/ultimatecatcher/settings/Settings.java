@@ -33,9 +33,17 @@ public class Settings {
             "Which economy plugin should be used?",
             "Supported plugins you have installed: \"" + EconomyManager.getManager().getRegisteredPlugins().stream().collect(Collectors.joining("\", \"")) + "\".");
 
-    public static final ConfigSetting LANGUGE_MODE = new ConfigSetting(config, "System.Language Mode", "en_US",
+    public static final ConfigSetting LANGUAGE_MODE = new ConfigSetting(config, "System.Language Mode", "en_US",
             "The enabled language file.",
             "More language files (if available) can be found in the plugins data folder.");
+
+    public static final ConfigSetting CATCHER_LORE_FORMAT = new ConfigSetting(config, "Lore Formats.Catcher.Lore", Arrays.asList("%chance%", "%cost%"),
+            "Configure the order of lines in the catcher lore.",
+            "Placeholders will get replaced with lines from the language file.");
+
+    public static final ConfigSetting CATCHER_CAUGHT_LORE_FORMAT = new ConfigSetting(config, "Lore Formats.Catcher Caught.Lore", Arrays.asList("%type%", "%age%", "%health%", "%tamed%", "%trusted%"),
+            "Configure the order of lines in a spawn egg.",
+            "Placeholders will get replaced with lines from the language file.");
 
 
     /**

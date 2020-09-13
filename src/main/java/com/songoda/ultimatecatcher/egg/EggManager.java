@@ -1,11 +1,39 @@
 package com.songoda.ultimatecatcher.egg;
 
+import com.songoda.core.configuration.Config;
+import com.songoda.ultimatecatcher.UltimateCatcher;
+import org.bukkit.configuration.ConfigurationSection;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class EggManager {
 
     private final Deque<CEgg> registeredEggs = new ArrayDeque<>();
+
+    /*
+     * Register eggs into EggManager from Configuration.
+     */
+    public void loadEggs() {
+        this.registeredEggs.clear();
+
+        Config eggConfig = UltimateCatcher.getInstance().getEggConfig();
+
+        if (!eggConfig.contains("Eggs"))
+            return;
+
+        for (String keyName : eggConfig.getConfigurationSection("Eggs").getKeys(false)) {
+            ConfigurationSection section = eggConfig.getConfigurationSection("Eggs." + keyName);
+
+            EggBuilder eggBuilder = new EggBuilder(keyName)
+                    .setName(section.getString("Name"))
+                    .setRecipe(section.getStringList("Recipe"))
+                    .setCost(section.getDouble("Cost"))
+                    .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
+
+            addEgg(eggBuilder.build());
+        }
+    }
 
     public CEgg addEgg(CEgg egg) {
         registeredEggs.add(egg);

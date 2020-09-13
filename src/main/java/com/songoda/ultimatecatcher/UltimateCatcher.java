@@ -14,7 +14,6 @@ import com.songoda.ultimatecatcher.commands.CommandGive;
 import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
 import com.songoda.ultimatecatcher.egg.CEgg;
-import com.songoda.ultimatecatcher.egg.EggBuilder;
 import com.songoda.ultimatecatcher.egg.EggManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
@@ -24,13 +23,14 @@ import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UltimateCatcher extends SongodaPlugin {
 
@@ -43,6 +43,8 @@ public class UltimateCatcher extends SongodaPlugin {
     private EggManager eggManager;
     private CommandManager commandManager;
     private EntityListeners entityListeners;
+
+    private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
 
     public static UltimateCatcher getInstance() {
         return INSTANCE;
@@ -63,7 +65,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
         // Setup Config
         Settings.setupConfig();
-        this.setLocale(Settings.LANGUGE_MODE.getString(), false);
+        this.setLocale(Settings.LANGUAGE_MODE.getString(), false);
 
         // Set economy preference
         EconomyManager.getManager().setPreferredHook(Settings.ECONOMY_PLUGIN.getString());
@@ -97,8 +99,19 @@ public class UltimateCatcher extends SongodaPlugin {
         setupMobs();
         setupEgg();
 
-        // Register recipe
+        registerRecipes();
+    }
+
+    private void registerRecipes() {
+
+        // Unregister old
+        for (NamespacedKey key : registeredRecipes) {
+            Bukkit.removeRecipe(key);
+        }
+
+        // Register recipes
         if (Settings.USE_CATCHER_RECIPE.getBoolean()) {
+
             for (CEgg egg : eggManager.getRegisteredEggs()) {
                 ShapelessRecipe shapelessRecipe = ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)
                         ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
@@ -109,8 +122,12 @@ public class UltimateCatcher extends SongodaPlugin {
                     shapelessRecipe.addIngredient(Integer.parseInt(split[0]), Material.valueOf(split[1]));
                 }
 
-                if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null)
+                // Avoid exceptions when it's already registered.
+                if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null) {
                     Bukkit.addRecipe(shapelessRecipe);
+                    this.registeredRecipes.add(shapelessRecipe.getKey());
+                } else
+                    Bukkit.getLogger().warning("Recipe " + shapelessRecipe.getKey().getKey() + " is already registered.");
             }
         }
     }
@@ -154,22 +171,7 @@ public class UltimateCatcher extends SongodaPlugin {
         eggConfig.load();
         eggConfig.saveChanges();
 
-        /*
-         * Register eggs into EggManager from Configuration.
-         */
-        if (eggConfig.contains("Eggs")) {
-            for (String keyName : eggConfig.getConfigurationSection("Eggs").getKeys(false)) {
-                ConfigurationSection section = eggConfig.getConfigurationSection("Eggs." + keyName);
-
-                EggBuilder eggBuilder = new EggBuilder(keyName)
-                        .setName(section.getString("Name"))
-                        .setRecipe(section.getStringList("Recipe"))
-                        .setCost(section.getDouble("Cost"))
-                        .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
-
-                eggManager.addEgg(eggBuilder.build());
-            }
-        }
+        eggManager.loadEggs();
     }
 
     @Override
@@ -183,7 +185,12 @@ public class UltimateCatcher extends SongodaPlugin {
 
     @Override
     public void onConfigReload() {
-        this.setLocale(Settings.LANGUGE_MODE.getString(), true);
+        this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
+        this.mobConfig.load();
+
+        this.eggConfig.load();
+        this.eggManager.loadEggs();
+        this.registerRecipes();
     }
 
     @Override
@@ -205,5 +212,9 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public Config getMobConfig() {
         return mobConfig;
+    }
+
+    public Config getEggConfig() {
+        return eggConfig;
     }
 }
