@@ -1,18 +1,18 @@
 package com.songoda.ultimatecatcher.egg;
 
 import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.ServerVersion;
+import com.songoda.core.locale.Message;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
-import org.bukkit.Material;
+import com.songoda.ultimatecatcher.settings.Settings;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CEgg {
 
@@ -32,13 +32,18 @@ public class CEgg {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(TextUtils.formatText(name));
 
-        // ToDo: Translate this.
-        List<String> lore = new ArrayList<>();
-        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorecost")
-                .processPlaceholder("cost", cost).getMessage());
+        String costLine = UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorecost")
+                .processPlaceholder("cost", cost)
+                .getMessage();
 
-        lore.add(UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorechance")
-                .processPlaceholder("chance", chance).getMessage());
+        String chanceLine = UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorechance")
+                .processPlaceholder("chance", chance)
+                .getMessage();
+
+        List<String> lore = Settings.CATCHER_LORE_FORMAT.getStringList().stream()
+                .map(line -> new Message(line).processPlaceholder("cost", costLine).processPlaceholder("chance", chanceLine).getMessage())
+                .collect(Collectors.toList());
+
         meta.setLore(lore);
 
         item.setItemMeta(meta);

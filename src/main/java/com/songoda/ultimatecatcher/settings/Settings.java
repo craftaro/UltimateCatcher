@@ -37,6 +37,14 @@ public class Settings {
             "The enabled language file.",
             "More language files (if available) can be found in the plugins data folder.");
 
+    public static final ConfigSetting CATCHER_LORE_FORMAT = new ConfigSetting(config, "Lore Formats.Catcher.Lore", Arrays.asList("%chance%", "%cost%"),
+            "Configure the order of lines in the catcher lore.",
+            "Placeholders will get replaced with lines from the language file.");
+
+    public static final ConfigSetting CATCHER_CAUGHT_LORE_FORMAT = new ConfigSetting(config, "Lore Formats.Catcher Caught.Lore", Arrays.asList("%type%", "%age%", "%health%", "%tamed%", "%trusted%"),
+            "Configure the order of lines in a spawn egg.",
+            "Placeholders will get replaced with lines from the language file.");
+
 
     /**
      * In order to set dynamic economy comment correctly, this needs to be
