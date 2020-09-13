@@ -126,7 +126,6 @@ public class UltimateCatcher extends SongodaPlugin {
                 if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null) {
                     Bukkit.addRecipe(shapelessRecipe);
                     this.registeredRecipes.add(shapelessRecipe.getKey());
-                    Bukkit.getLogger().info("Registered recipe " + shapelessRecipe.getKey().getKey());
                 } else
                     Bukkit.getLogger().warning("Recipe " + shapelessRecipe.getKey().getKey() + " is already registered.");
             }
