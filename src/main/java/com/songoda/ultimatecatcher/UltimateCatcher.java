@@ -63,7 +63,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
         // Setup Config
         Settings.setupConfig();
-        this.setLocale(Settings.LANGUGE_MODE.getString(), false);
+        this.setLocale(Settings.LANGUAGE_MODE.getString(), false);
 
         // Set economy preference
         EconomyManager.getManager().setPreferredHook(Settings.ECONOMY_PLUGIN.getString());
@@ -183,7 +183,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
     @Override
     public void onConfigReload() {
-        this.setLocale(Settings.LANGUGE_MODE.getString(), true);
+        this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
     }
 
     @Override
