@@ -154,22 +154,7 @@ public class UltimateCatcher extends SongodaPlugin {
         eggConfig.load();
         eggConfig.saveChanges();
 
-        /*
-         * Register eggs into EggManager from Configuration.
-         */
-        if (eggConfig.contains("Eggs")) {
-            for (String keyName : eggConfig.getConfigurationSection("Eggs").getKeys(false)) {
-                ConfigurationSection section = eggConfig.getConfigurationSection("Eggs." + keyName);
-
-                EggBuilder eggBuilder = new EggBuilder(keyName)
-                        .setName(section.getString("Name"))
-                        .setRecipe(section.getStringList("Recipe"))
-                        .setCost(section.getDouble("Cost"))
-                        .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
-
-                eggManager.addEgg(eggBuilder.build());
-            }
-        }
+        eggManager.loadEggs();
     }
 
     @Override
@@ -185,6 +170,9 @@ public class UltimateCatcher extends SongodaPlugin {
     public void onConfigReload() {
         this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
         this.mobConfig.load();
+
+        this.eggConfig.load();
+        this.eggManager.loadEggs();
     }
 
     @Override
