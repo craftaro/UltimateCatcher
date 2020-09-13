@@ -206,4 +206,8 @@ public class UltimateCatcher extends SongodaPlugin {
     public Config getMobConfig() {
         return mobConfig;
     }
+
+    public Config getEggConfig() {
+        return eggConfig;
+    }
 }

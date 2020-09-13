@@ -3,6 +3,7 @@ package com.songoda.ultimatecatcher.listeners;
 import com.songoda.core.compatibility.*;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
+import com.songoda.core.locale.Message;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.core.nms.nbt.NBTItem;
 import com.songoda.core.utils.ItemUtils;
@@ -342,32 +343,50 @@ public class EntityListeners implements Listener {
                                 && !(EntityStackerManager.getStacker() != null && !EntityStackerManager.isStacked(livingEntity)) ? entity.getCustomName()
                                 : EntityUtils.getFormattedEntityType(entity.getType()))).getMessage());
 
-        List<String> lore = new ArrayList<>();
-        lore.add(plugin.getLocale().getMessage("general.catcherinfo.type")
+        String typeLine = plugin.getLocale().getMessage("general.catcherinfo.type")
                 .processPlaceholder("value", EntityUtils.getFormattedEntityType(entity.getType()))
-                .getMessage());
+                .getMessage();
 
         double health = Math.round(livingEntity.getHealth() * 100.0) / 100.0;
         double max = livingEntity.getMaxHealth();
 
-        lore.add(plugin.getLocale().getMessage("general.catcherinfo.health")
-                .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max").getMessage() : health + "/" + max)).getMessage());
+        String healthLine = plugin.getLocale().getMessage("general.catcherinfo.health")
+                .processPlaceholder("value", (health == max ? plugin.getLocale().getMessage("general.catcher.max").getMessage() : health + "/" + max)).getMessage();
 
-        if (entity instanceof Ageable)
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult").getMessage() : plugin.getLocale().getMessage("general.catcher.baby").getMessage()).getMessage());
+        List<String> lore = new ArrayList<>();
 
-        if (entity instanceof Tameable && ((Tameable) entity).isTamed()) {
-            lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
-        }
+        // Parse lore according to config format.
+        for (String line : Settings.CATCHER_CAUGHT_LORE_FORMAT.getStringList()) {
 
-        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-            if (entity instanceof Fox) {
-                AnimalTamer tamer = ((Fox) entity).getFirstTrustedPlayer();
-                if (tamer != null && !tamer.getUniqueId().equals(player.getUniqueId())
-                        && Settings.REJECT_TAMED.getBoolean()) {
-                    lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+            Message messageLine = new Message(line);
+
+            if (line.toLowerCase().contains("%age%")) {
+                if (entity instanceof Ageable) {
+                    lore.add(plugin.getLocale().getMessage("general.catcherinfo.age").processPlaceholder("value", ((Ageable) entity).isAdult() ? plugin.getLocale().getMessage("general.catcher.adult").getMessage() : plugin.getLocale().getMessage("general.catcher.baby").getMessage()).getMessage());
                 }
+                continue;
             }
+
+            if (line.toLowerCase().contains("%tamed%")) {
+                if (entity instanceof Tameable && ((Tameable) entity).isTamed()) {
+                    lore.add(plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage());
+                }
+                continue;
+            }
+
+            if (line.toLowerCase().contains("%trusted%")) {
+                if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14) && entity instanceof Fox) {
+                    AnimalTamer tamer = ((Fox) entity).getFirstTrustedPlayer();
+                    if (tamer != null && !tamer.getUniqueId().equals(player.getUniqueId())
+                            && Settings.REJECT_TAMED.getBoolean()) {
+                        lore.add(plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage());
+                    }
+                }
+                continue;
+            }
+
+            lore.add(messageLine.processPlaceholder("health", healthLine)
+                    .processPlaceholder("type", typeLine).getMessage());
         }
 
         meta.setLore(lore);
