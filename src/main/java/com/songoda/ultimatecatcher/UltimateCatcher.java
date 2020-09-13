@@ -14,7 +14,6 @@ import com.songoda.ultimatecatcher.commands.CommandGive;
 import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
 import com.songoda.ultimatecatcher.egg.CEgg;
-import com.songoda.ultimatecatcher.egg.EggBuilder;
 import com.songoda.ultimatecatcher.egg.EggManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
@@ -24,13 +23,14 @@ import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UltimateCatcher extends SongodaPlugin {
 
@@ -43,6 +43,8 @@ public class UltimateCatcher extends SongodaPlugin {
     private EggManager eggManager;
     private CommandManager commandManager;
     private EntityListeners entityListeners;
+
+    private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
 
     public static UltimateCatcher getInstance() {
         return INSTANCE;
@@ -97,8 +99,19 @@ public class UltimateCatcher extends SongodaPlugin {
         setupMobs();
         setupEgg();
 
-        // Register recipe
+        registerRecipes();
+    }
+
+    private void registerRecipes() {
+
+        // Unregister old
+        for (NamespacedKey key : registeredRecipes) {
+            Bukkit.removeRecipe(key);
+        }
+
+        // Register recipes
         if (Settings.USE_CATCHER_RECIPE.getBoolean()) {
+
             for (CEgg egg : eggManager.getRegisteredEggs()) {
                 ShapelessRecipe shapelessRecipe = ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)
                         ? new ShapelessRecipe(new NamespacedKey(this, egg.getKey()),
@@ -109,8 +122,13 @@ public class UltimateCatcher extends SongodaPlugin {
                     shapelessRecipe.addIngredient(Integer.parseInt(split[0]), Material.valueOf(split[1]));
                 }
 
-                if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null)
+                // Avoid exceptions when it's already registered.
+                if (Bukkit.getRecipe(shapelessRecipe.getKey()) == null) {
                     Bukkit.addRecipe(shapelessRecipe);
+                    this.registeredRecipes.add(shapelessRecipe.getKey());
+                    Bukkit.getLogger().info("Registered recipe " + shapelessRecipe.getKey().getKey());
+                } else
+                    Bukkit.getLogger().warning("Recipe " + shapelessRecipe.getKey().getKey() + " is already registered.");
             }
         }
     }
@@ -173,6 +191,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
         this.eggConfig.load();
         this.eggManager.loadEggs();
+        this.registerRecipes();
     }
 
     @Override
