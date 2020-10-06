@@ -275,7 +275,6 @@ public class EntityListeners implements Listener {
             plugin.getLocale().getMessage("event.catch.failed")
                     .processPlaceholder("type", EntityUtils.getFormattedEntityType(entity.getType()))
                     .sendPrefixedMessage(player);
-            reject(egg, catcher, true);
             return;
         }
 
