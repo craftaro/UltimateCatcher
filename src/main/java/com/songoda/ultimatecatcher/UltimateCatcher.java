@@ -15,6 +15,7 @@ import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.egg.EggManager;
+import com.songoda.ultimatecatcher.hook.ExternalHooks;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
@@ -43,7 +44,8 @@ public class UltimateCatcher extends SongodaPlugin {
     private EggManager eggManager;
     private CommandManager commandManager;
     private EntityListeners entityListeners;
-
+    private ExternalHooks externalHooks;
+    
     private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
 
     public static UltimateCatcher getInstance() {
@@ -72,6 +74,9 @@ public class UltimateCatcher extends SongodaPlugin {
 
         // Load entity stack manager.
         EntityStackerManager.load();
+        
+        // Load hook manager
+        externalHooks = new ExternalHooks(this);
 
         // Register commands
         this.commandManager = new CommandManager(this);
@@ -210,6 +215,10 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public EntityListeners getEntityListeners() {
         return entityListeners;
+    }
+    
+    public ExternalHooks getExternalHooks() {
+    	return externalHooks;
     }
 
     public Config getMobConfig() {
