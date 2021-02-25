@@ -1,5 +1,6 @@
 package com.songoda.ultimatecatcher.hook.hooks;
 
+import com.songoda.core.hooks.ProtectionManager;
 import com.songoda.ultimatecatcher.hook.ExternalHook;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
