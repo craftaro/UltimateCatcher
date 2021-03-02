@@ -9,7 +9,7 @@ public class WorldGuardHook implements ExternalHook {
 
     @Override
     public boolean shouldStopCapture(Player attemptingPlayer, Entity entityToCapture) {
-        return !com.songoda.core.hooks.WorldGuardHook.isBuildAllowed(entityToCapture.getLocation());
+        return !com.songoda.core.hooks.WorldGuardHook.isBuildAllowed(attemptingPlayer, entityToCapture.getLocation());
     }
 
 }
