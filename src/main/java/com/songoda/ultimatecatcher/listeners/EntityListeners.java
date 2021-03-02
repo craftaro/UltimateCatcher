@@ -239,7 +239,7 @@ public class EntityListeners implements Listener {
             }
         }
         
-        if(plugin.getExternalHooks().shouldStopCapture(player, entity)) {
+        if(plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
         	reject(egg, catcher, true);
             return;
         }

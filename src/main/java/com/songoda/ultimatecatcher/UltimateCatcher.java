@@ -15,7 +15,7 @@ import com.songoda.ultimatecatcher.commands.CommandReload;
 import com.songoda.ultimatecatcher.commands.CommandSettings;
 import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.egg.EggManager;
-import com.songoda.ultimatecatcher.hook.ExternalHooks;
+import com.songoda.ultimatecatcher.hook.ExternalHookManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
@@ -44,7 +44,7 @@ public class UltimateCatcher extends SongodaPlugin {
     private EggManager eggManager;
     private CommandManager commandManager;
     private EntityListeners entityListeners;
-    private ExternalHooks externalHooks;
+    private ExternalHookManager externalHookManager;
     
     private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
 
@@ -76,7 +76,7 @@ public class UltimateCatcher extends SongodaPlugin {
         EntityStackerManager.load();
         
         // Load hook manager
-        externalHooks = new ExternalHooks(this);
+        externalHookManager = new ExternalHookManager(this);
 
         // Register commands
         this.commandManager = new CommandManager(this);
@@ -134,7 +134,7 @@ public class UltimateCatcher extends SongodaPlugin {
                     Bukkit.addRecipe(shapelessRecipe);
                     this.registeredRecipes.add(shapelessRecipe.getKey());
                 } else
-                    Bukkit.getLogger().warning("Recipe " + shapelessRecipe.getKey().getKey() + " is already registered.");
+                    Bukkit.getLogger().warning("Recipe " + egg.getKey() + " is already registered.");
             }
         }
     }
@@ -217,8 +217,8 @@ public class UltimateCatcher extends SongodaPlugin {
         return entityListeners;
     }
     
-    public ExternalHooks getExternalHooks() {
-    	return externalHooks;
+    public ExternalHookManager getExternalHookManager() {
+    	return externalHookManager;
     }
 
     public Config getMobConfig() {
