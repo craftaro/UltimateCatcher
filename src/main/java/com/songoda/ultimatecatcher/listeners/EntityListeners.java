@@ -238,6 +238,11 @@ public class EntityListeners implements Listener {
                 return;
             }
         }
+        
+        if(plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
+        	reject(egg, catcher, true);
+            return;
+        }
 
         String val = "Mobs." + entity.getType().name() + ".Enabled";
         if (!configurationSection.contains(val)) {

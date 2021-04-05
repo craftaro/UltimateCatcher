@@ -2,7 +2,7 @@ name: UltimateCatcher
 description: UltimateCatcher
 version: maven-version-number
 main: com.songoda.ultimatecatcher.UltimateCatcher
-softdepend: [UltimateStacker]
+softdepend: [UltimateStacker, WorldGuard]
 author: songoda
 api-version: 1.13
 commands:
