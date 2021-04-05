@@ -1,7 +1,9 @@
 package com.songoda.ultimatecatcher.hook;
 
 import com.songoda.ultimatecatcher.UltimateCatcher;
+import com.songoda.ultimatecatcher.hook.hooks.GeneralHook;
 import com.songoda.ultimatecatcher.hook.hooks.WorldGuardHook;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -15,6 +17,7 @@ public class ExternalHookManager {
     public ExternalHookManager(UltimateCatcher plugin) {
         if (plugin.getServer().getPluginManager().isPluginEnabled("WorldGuard"))
             registerEternalHook(new WorldGuardHook());
+        registerEternalHook(new GeneralHook());
     }
 
     public void registerEternalHook(ExternalHook hook) {
@@ -23,9 +26,10 @@ public class ExternalHookManager {
 
     /* Called when an entity attempts to be caught, will return true if the event should be cancelled */
     public boolean shouldStopCapture(Player attemptingPlayer, Entity entityToCapture) {
-        for (ExternalHook hook : registeredHooks)
+        for (ExternalHook hook : registeredHooks) {
             if (hook.shouldStopCapture(attemptingPlayer, entityToCapture))
                 return true;
+        }
         return false;
     }
 }
