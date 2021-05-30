@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://proxy.songoda.com/200/https://cdn2.songoda.com/products/ultimatecatcher/fcvc4iOEf9kFRk25JldPCjioWP0FdGvA032nbDkw.png" alt="UltimateCatcher" />
+<img src="https://cdn2.songoda.com/products/ultimatecatcher/fcvc4iOEf9kFRk25JldPCjioWP0FdGvA032nbDkw.png" alt="UltimateCatcher" />
 </p>
 <h1 align="center">UltimateCatcher</h1>
 
