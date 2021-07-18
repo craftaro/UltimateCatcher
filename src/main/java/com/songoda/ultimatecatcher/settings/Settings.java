@@ -28,6 +28,9 @@ public class Settings {
     public static final ConfigSetting BLOCKED_SPAWNING_WORLDS = new ConfigSetting(config, "Main.Blocked Spawning Worlds", Arrays.asList("world_nether"),
             "Which worlds should players not be able to spawn caught mobs?");
 
+    public static final ConfigSetting USE_RECIPE_BOOK = new ConfigSetting(config, "Main.Use Recipe Book", false,
+            "Should we add the recipes to the recipe book available in 1.12 and above?",
+            "Note: This option won't do anything in servers below 1.12.");
 
     public static final ConfigSetting ECONOMY_PLUGIN = new ConfigSetting(config, "Main.Economy", EconomyManager.getEconomy() == null ? "Vault" : EconomyManager.getEconomy().getName(),
             "Which economy plugin should be used?",
@@ -44,7 +47,6 @@ public class Settings {
     public static final ConfigSetting CATCHER_CAUGHT_LORE_FORMAT = new ConfigSetting(config, "Lore Formats.Catcher Caught.Lore", Arrays.asList("%type%", "%age%", "%health%", "%tamed%", "%trusted%"),
             "Configure the order of lines in a spawn egg.",
             "Placeholders will get replaced with lines from the language file.");
-
 
     /**
      * In order to set dynamic economy comment correctly, this needs to be
