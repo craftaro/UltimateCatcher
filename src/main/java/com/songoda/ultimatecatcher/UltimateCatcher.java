@@ -19,19 +19,18 @@ import com.songoda.ultimatecatcher.hook.ExternalHookManager;
 import com.songoda.ultimatecatcher.listeners.DispenserListeners;
 import com.songoda.ultimatecatcher.listeners.EntityListeners;
 import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
+import com.songoda.ultimatecatcher.listeners.RecipeBookListeners;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UltimateCatcher extends SongodaPlugin {
 
@@ -97,6 +96,8 @@ public class UltimateCatcher extends SongodaPlugin {
         pluginManager.registerEvents(new DispenserListeners(), this);
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12))
             pluginManager.registerEvents(new EntityPickupListeners(), this);
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14))
+            pluginManager.registerEvents(new RecipeBookListeners(this), this);
 
         EggTrackingTask.startTask(this);
 
@@ -127,14 +128,21 @@ public class UltimateCatcher extends SongodaPlugin {
                     shapelessRecipe.addIngredient(Integer.parseInt(split[0]), Material.valueOf(split[1]));
                 }
 
-                // Avoid exceptions when it's already registered.
-                if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_16)
-                        && !ServerVersion.getVersionReleaseNumber().equals("1")
-                        && Bukkit.getRecipe(shapelessRecipe.getKey()) == null) {
-                    Bukkit.addRecipe(shapelessRecipe);
+                if (Bukkit.addRecipe(shapelessRecipe) && ServerVersion.isServerVersionAtLeast(ServerVersion.V1_16))
                     this.registeredRecipes.add(shapelessRecipe.getKey());
-                } else
-                    Bukkit.getLogger().warning("Recipe " + egg.getKey() + " is already registered.");
+            }
+        }
+    }
+
+    private void removeLegacyRecipes() {
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_16))
+            return;
+
+        Iterator<Recipe> iterator = Bukkit.recipeIterator();
+        while (iterator.hasNext()) {
+            Recipe recipe = iterator.next();
+            if (eggManager.getRegisteredEggs().stream().anyMatch(egg -> egg.toItemStack().isSimilar(recipe.getResult()))) {
+                iterator.remove();
             }
         }
     }
@@ -192,6 +200,8 @@ public class UltimateCatcher extends SongodaPlugin {
 
     @Override
     public void onConfigReload() {
+        this.removeLegacyRecipes();
+
         this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
         this.mobConfig.load();
 
@@ -227,5 +237,9 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public Config getEggConfig() {
         return eggConfig;
+    }
+
+    public Set<NamespacedKey> getRegisteredRecipes() {
+        return Collections.unmodifiableSet(registeredRecipes);
     }
 }
