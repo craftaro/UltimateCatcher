@@ -30,7 +30,7 @@ public class Settings {
 
     public static final ConfigSetting USE_RECIPE_BOOK = new ConfigSetting(config, "Main.Use Recipe Book", false,
             "Should we add the recipes to the recipe book available in 1.12 and above?",
-            "Note: This option won't do anything in servers below 1.12.");
+            "Note: This option won't do anything in servers below 1.14.");
 
     public static final ConfigSetting ECONOMY_PLUGIN = new ConfigSetting(config, "Main.Economy", EconomyManager.getEconomy() == null ? "Vault" : EconomyManager.getEconomy().getName(),
             "Which economy plugin should be used?",
