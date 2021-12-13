@@ -148,7 +148,6 @@ public class EntityListeners implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                     toThrow.removeEnchantment(Enchantment.ARROW_KNOCKBACK), 50);
             toThrow.setAmount(1);
-            ItemUtils.setMaxStack(item, 1);
 
             // When you see it just know it wasn't anyone on our teams idea.
             toThrow.addUnsafeEnchantment(Enchantment.ARROW_KNOCKBACK, 69);
@@ -238,7 +237,7 @@ public class EntityListeners implements Listener {
                 return;
             }
         }
-        
+
         if(plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
         	reject(egg, catcher, true);
             return;
