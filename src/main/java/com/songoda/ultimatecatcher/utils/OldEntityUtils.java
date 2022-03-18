@@ -8,7 +8,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.Panda;
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -256,7 +271,7 @@ public class OldEntityUtils {
                 case FOX:
                     String owner = (String) jsonObject.get("owner");
                     if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
-                        ((Fox)entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
+                        ((Fox) entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
                     break;
             }
 

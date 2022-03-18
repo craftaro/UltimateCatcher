@@ -30,7 +30,12 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginManager;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class UltimateCatcher extends SongodaPlugin {
 
@@ -44,7 +49,7 @@ public class UltimateCatcher extends SongodaPlugin {
     private CommandManager commandManager;
     private EntityListeners entityListeners;
     private ExternalHookManager externalHookManager;
-    
+
     private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
 
     public static UltimateCatcher getInstance() {
@@ -73,7 +78,7 @@ public class UltimateCatcher extends SongodaPlugin {
 
         // Load entity stack manager.
         EntityStackerManager.load();
-        
+
         // Load hook manager
         externalHookManager = new ExternalHookManager(this);
 
@@ -226,9 +231,9 @@ public class UltimateCatcher extends SongodaPlugin {
     public EntityListeners getEntityListeners() {
         return entityListeners;
     }
-    
+
     public ExternalHookManager getExternalHookManager() {
-    	return externalHookManager;
+        return externalHookManager;
     }
 
     public Config getMobConfig() {

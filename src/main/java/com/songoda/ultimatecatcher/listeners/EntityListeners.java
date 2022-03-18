@@ -1,6 +1,10 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.*;
+import com.songoda.core.compatibility.CompatibleHand;
+import com.songoda.core.compatibility.CompatibleMaterial;
+import com.songoda.core.compatibility.CompatibleParticleHandler;
+import com.songoda.core.compatibility.CompatibleSound;
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.core.locale.Message;
@@ -12,11 +16,34 @@ import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Ambient;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Boss;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Flying;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.WaterMob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,7 +56,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public class EntityListeners implements Listener {
 
@@ -237,8 +272,8 @@ public class EntityListeners implements Listener {
             }
         }
 
-        if(plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
-        	reject(egg, catcher, true);
+        if (plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
+            reject(egg, catcher, true);
             return;
         }
 
