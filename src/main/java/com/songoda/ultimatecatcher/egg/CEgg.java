@@ -2,8 +2,7 @@ package com.songoda.ultimatecatcher.egg;
 
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.locale.Message;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.settings.Settings;
@@ -48,12 +47,12 @@ public class CEgg {
 
         item.setItemMeta(meta);
 
-        NBTItem nbtItem = NmsManager.getNbt().of(item);
+        NBTItem nbtItem = new NBTItem(item);
 
-        nbtItem.set("UCI", true);
-        nbtItem.set("type", key);
+        nbtItem.setBoolean("UCI", true);
+        nbtItem.setString("type", key);
 
-        return nbtItem.finish();
+        return nbtItem.getItem();
     }
 
     public String getKey() {

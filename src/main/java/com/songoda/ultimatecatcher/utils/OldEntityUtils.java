@@ -2,8 +2,7 @@ package com.songoda.ultimatecatcher.utils;
 
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.ServerVersion;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.core.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -21,133 +20,133 @@ public class OldEntityUtils {
 
     @Deprecated
     public static LivingEntity spawnEntity(Location location, ItemStack item) {
-        NBTItem nbtItem = NmsManager.getNbt().of(item);
+        NBTItem nbtItem = new NBTItem(item);
 
         LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location,
-                EntityType.valueOf(nbtItem.getNBTObject("type").asString()));
+                EntityType.valueOf(nbtItem.getString("type")));
 
-        if (nbtItem.has("baby")) {
-            if (nbtItem.getNBTObject("baby").asBoolean())
+        if (nbtItem.hasKey("baby")) {
+            if (nbtItem.getBoolean("baby"))
                 ((Ageable) entity).setBaby();
             else
                 ((Ageable) entity).setAdult();
         }
 
-        if (nbtItem.has("name"))
-            entity.setCustomName(nbtItem.getNBTObject("name").asString());
+        if (nbtItem.hasKey("name"))
+            entity.setCustomName(nbtItem.getString("name"));
 
-        if (nbtItem.has("tamed")) {
-            ((Tameable) entity).setTamed(nbtItem.getNBTObject("tamed").asBoolean());
-            String owner = nbtItem.getNBTObject("owner").asString();
+        if (nbtItem.hasKey("tamed")) {
+            ((Tameable) entity).setTamed(nbtItem.getBoolean("tamed"));
+            String owner = nbtItem.getString("owner");
             if (owner != null)
                 ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
         }
 
-        double health = nbtItem.getNBTObject("health").asDouble();
+        double health = nbtItem.getDouble("health");
         entity.setHealth(health > entity.getMaxHealth() ? entity.getMaxHealth() : health);
 
         switch (entity.getType()) {
             case CAT:
                 Cat cat = (Cat) entity;
-                cat.setCollarColor(DyeColor.valueOf(nbtItem.getNBTObject("color").asString()));
-                cat.setCatType(Cat.Type.valueOf(nbtItem.getNBTObject("catType").asString()));
+                cat.setCollarColor(DyeColor.valueOf(nbtItem.getString("color")));
+                cat.setCatType(Cat.Type.valueOf(nbtItem.getString("catType")));
                 break;
             case WOLF:
                 Wolf wolf = (Wolf) entity;
-                wolf.setCollarColor(DyeColor.valueOf(nbtItem.getNBTObject("color").asString()));
+                wolf.setCollarColor(DyeColor.valueOf(nbtItem.getString("color")));
                 break;
             case PARROT:
                 Parrot parrot = (Parrot) entity;
-                parrot.setVariant(Parrot.Variant.valueOf(nbtItem.getNBTObject("variant").asString()));
+                parrot.setVariant(Parrot.Variant.valueOf(nbtItem.getString("variant")));
                 break;
             case SHEEP:
                 Sheep sheep = (Sheep) entity;
-                sheep.setColor(DyeColor.valueOf(nbtItem.getNBTObject("color").asString()));
+                sheep.setColor(DyeColor.valueOf(nbtItem.getString("color")));
 
-                if (nbtItem.has("sheered"))
-                    sheep.setSheared(nbtItem.getNBTObject("sheered").asBoolean());
+                if (nbtItem.hasKey("sheered"))
+                    sheep.setSheared(nbtItem.getBoolean("sheered"));
                 break;
             case VILLAGER:
                 Villager villager = (Villager) entity;
                 villager.setProfession(Villager.
-                        Profession.valueOf(nbtItem.getNBTObject("profession").asString()));
+                        Profession.valueOf(nbtItem.getString("profession")));
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14)) {
-                    int experience = nbtItem.getNBTObject("experience").asInt();
+                    int experience = nbtItem.getInteger("experience");
                     villager.setVillagerExperience(experience == 0 ? 1 : 0);
                 }
                 break;
             case SLIME:
                 Slime slime = (Slime) entity;
-                slime.setSize(nbtItem.getNBTObject("size").asInt());
+                slime.setSize(nbtItem.getInteger("size"));
                 break;
             case LLAMA:
                 Llama llama = (Llama) entity;
-                llama.setColor(Llama.Color.valueOf(nbtItem.getNBTObject("color").asString()));
+                llama.setColor(Llama.Color.valueOf(nbtItem.getString("color")));
 
-                if (nbtItem.has("decor"))
+                if (nbtItem.hasKey("decor"))
                     llama.getInventory().setDecor(new ItemStack(CompatibleMaterial
-                            .valueOf(nbtItem.getNBTObject("decor").asString()).getMaterial()));
+                            .valueOf(nbtItem.getString("decor")).getMaterial()));
             case DONKEY:
             case MULE:
                 ChestedHorse chestedHorse = (ChestedHorse) entity;
 
-                chestedHorse.setCarryingChest(nbtItem.getNBTObject("chest").asBoolean());
+                chestedHorse.setCarryingChest(nbtItem.getBoolean("chest"));
 
-                if (nbtItem.has("inventory"))
+                if (nbtItem.hasKey("inventory"))
                     chestedHorse.getInventory().setContents(ItemUtils
-                            .itemStackArrayFromBase64(nbtItem.getNBTObject("inventory").asString()));
+                            .itemStackArrayFromBase64(nbtItem.getString("inventory")));
 
-                chestedHorse.getInventory().setMaxStackSize(nbtItem.getNBTObject("size").asInt());
+                chestedHorse.getInventory().setMaxStackSize(nbtItem.getInteger("size"));
             case HORSE:
                 if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12)) {
                     AbstractHorse abstractHorse = (AbstractHorse) entity;
-                    abstractHorse.setJumpStrength(nbtItem.getNBTObject("jump").asDouble());
-                    abstractHorse.setDomestication(nbtItem.getNBTObject("domestication").asInt());
-                    abstractHorse.setMaxDomestication(nbtItem.getNBTObject("maxDomestication").asInt());
+                    abstractHorse.setJumpStrength(nbtItem.getDouble("jump"));
+                    abstractHorse.setDomestication(nbtItem.getInteger("domestication"));
+                    abstractHorse.setMaxDomestication(nbtItem.getInteger("maxDomestication"));
 
-                    if (nbtItem.has("saddle"))
+                    if (nbtItem.hasKey("saddle"))
                         abstractHorse.getInventory().setSaddle(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getNBTObject("saddle").asString())));
+                                CompatibleMaterial.getItem(nbtItem.getString("saddle"))));
 
                     if (abstractHorse instanceof Horse) {
                         Horse horse = ((Horse) entity);
-                        horse.setColor(Horse.Color.valueOf(nbtItem.getNBTObject("color").asString()));
-                        horse.setStyle(Horse.Style.valueOf(nbtItem.getNBTObject("style").asString()));
+                        horse.setColor(Horse.Color.valueOf(nbtItem.getString("color")));
+                        horse.setStyle(Horse.Style.valueOf(nbtItem.getString("style")));
 
 
-                        if (nbtItem.has("armor"))
+                        if (nbtItem.hasKey("armor"))
                             horse.getInventory().setArmor(new ItemStack(
-                                    CompatibleMaterial.getItem(nbtItem.getNBTObject("armor").asString())));
+                                    CompatibleMaterial.getItem(nbtItem.getString("armor"))));
 
                     }
                 } else {
                     Horse abstractHorse = (Horse) entity;
-                    abstractHorse.setJumpStrength(nbtItem.getNBTObject("jump").asDouble());
-                    abstractHorse.setDomestication(nbtItem.getNBTObject("domestication").asInt());
-                    abstractHorse.setMaxDomestication(nbtItem.getNBTObject("maxDomestication").asInt());
+                    abstractHorse.setJumpStrength(nbtItem.getDouble("jump"));
+                    abstractHorse.setDomestication(nbtItem.getInteger("domestication"));
+                    abstractHorse.setMaxDomestication(nbtItem.getInteger("maxDomestication"));
 
-                    if (nbtItem.has("saddle"))
+                    if (nbtItem.hasKey("saddle"))
                         abstractHorse.getInventory().setSaddle(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getNBTObject("saddle").asString())));
+                                CompatibleMaterial.getItem(nbtItem.getString("saddle"))));
 
                     Horse horse = ((Horse) entity);
-                    horse.setColor(Horse.Color.valueOf(nbtItem.getNBTObject("color").asString()));
-                    horse.setStyle(Horse.Style.valueOf(nbtItem.getNBTObject("style").asString()));
+                    horse.setColor(Horse.Color.valueOf(nbtItem.getString("color")));
+                    horse.setStyle(Horse.Style.valueOf(nbtItem.getString("style")));
 
 
-                    if (nbtItem.has("armor"))
+                    if (nbtItem.hasKey("armor"))
                         horse.getInventory().setArmor(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getNBTObject("armor").asString())));
+                                CompatibleMaterial.getItem(nbtItem.getString("armor"))));
 
                 }
                 break;
             case PANDA:
                 Panda panda = (Panda) entity;
-                panda.setHiddenGene(Panda.Gene.valueOf(nbtItem.getNBTObject("geneHidden").asString()));
-                panda.setMainGene(Panda.Gene.valueOf(nbtItem.getNBTObject("geneMain").asString()));
+                panda.setHiddenGene(Panda.Gene.valueOf(nbtItem.getString("geneHidden")));
+                panda.setMainGene(Panda.Gene.valueOf(nbtItem.getString("geneMain")));
                 break;
             case FOX:
-                String owner = nbtItem.getNBTObject("owner").asString();
+                String owner = nbtItem.getString("owner");
                 if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
                     ((Fox) entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
                 break;
