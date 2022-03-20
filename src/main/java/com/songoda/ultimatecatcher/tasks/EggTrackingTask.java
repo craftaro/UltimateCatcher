@@ -3,8 +3,7 @@ package com.songoda.ultimatecatcher.tasks;
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.CompatibleSound;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
 import com.songoda.ultimatecatcher.utils.OldEntityUtils;
@@ -54,10 +53,10 @@ public class EggTrackingTask extends BukkitRunnable {
                 boolean inWater = CompatibleMaterial.getMaterial(item.getLocation().getBlock()) == CompatibleMaterial.WATER;
 
                 Entity entity;
-                if (NmsManager.getNbt().of(item.getItemStack()).has("serialized_entity")) {
+                if (new NBTItem(item.getItemStack()).hasKey("serialized_entity")) {
                     entity = EntityUtils.spawnEntity(inWater ? item.getLocation().getBlock().getLocation().add(.5, .5, .5)
                             : item.getLocation(), item.getItemStack());
-                } else if (!displayName.contains("~") && NmsManager.getNbt().of(item.getItemStack()).has("UCI")) {
+                } else if (!displayName.contains("~") && new NBTItem(item.getItemStack()).hasKey("UCI")) {
                     entity = OldEntityUtils.spawnEntity(item.getLocation(), item.getItemStack());
                 } else {
                     String[] split = item.getItemStack().getItemMeta().getDisplayName().split("~");
@@ -74,9 +73,9 @@ public class EggTrackingTask extends BukkitRunnable {
                     item.getItemStack().removeEnchantment(Enchantment.ARROW_KNOCKBACK);
                     item.setPickupDelay(1);
 
-                    NBTItem newItem = NmsManager.getNbt().of(item.getItemStack());
-                    newItem.remove("UCI");
-                    item.setItemStack(newItem.finish());
+                    NBTItem newItem = new NBTItem(item.getItemStack());
+                    newItem.removeKey("UCI");
+                    item.setItemStack(newItem.getItem());
                     continue;
                 }
 

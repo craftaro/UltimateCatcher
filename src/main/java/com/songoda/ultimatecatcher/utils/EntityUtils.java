@@ -3,7 +3,7 @@ package com.songoda.ultimatecatcher.utils;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.core.nms.NmsManager;
 import com.songoda.core.nms.nbt.NBTEntity;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -20,27 +20,27 @@ public class EntityUtils {
     }
 
     public static ItemStack serializeEntity(ItemStack item, LivingEntity entity) {
-        NBTItem nbtItem = NmsManager.getNbt().of(item);
+        NBTItem nbtItem = new NBTItem(item);
         NBTEntity nbtEntity = NmsManager.getNbt().of(entity);
         if (EntityStackerManager.isStacked(entity))
             nbtEntity.set("wasStacked", true);
-        nbtItem.set("UC", true);
+        nbtItem.setBoolean("UC", true);
         try {
-            nbtItem.set("serialized_entity", new String(nbtEntity.serialize(), "ISO-8859-1"));
+            nbtItem.setString("serialized_entity", new String(nbtEntity.serialize(), "ISO-8859-1"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return nbtItem.finish();
+        return nbtItem.getItem();
     }
 
 
     public static LivingEntity spawnEntity(Location location, ItemStack item) {
-        NBTItem nbtItem = NmsManager.getNbt().of(item);
+        NBTItem nbtItem = new NBTItem(item);
         NBTEntity nbtEntity = NmsManager.getNbt().newEntity();
 
         byte[] encoded = new byte[0];
         try {
-            encoded = nbtItem.getNBTObject("serialized_entity").asString().getBytes("ISO-8859-1");
+            encoded = nbtItem.getString("serialized_entity").getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

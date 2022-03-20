@@ -1,8 +1,6 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
@@ -13,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
@@ -29,18 +26,18 @@ public class DispenserListeners implements Listener {
 
         if (event.getBlock().getType() != Material.DISPENSER) return;
 
-        NBTItem nbtItem = NmsManager.getNbt().of(item);
-        if (nbtItem.has("UCI")) {
+        NBTItem nbtItem = new NBTItem(item);
+        if (nbtItem.hasKey("UCI")) {
             event.setCancelled(true);
             return;
         }
-        if (nbtItem.has("UC")) {
+        if (nbtItem.hasKey("UC")) {
             if (!Settings.STOP_DISPENSER_IN_WORLD.getBoolean()) {
                 MaterialData materialData = event.getBlock().getState().getData();
                 Dispenser dispenser = (Dispenser) materialData;
                 BlockFace face = dispenser.getFacing();
                 Location location = event.getBlock().getRelative(face).getLocation().add(.5, 0, .5);
-                if (nbtItem.has("serialized_entity"))
+                if (nbtItem.hasKey("serialized_entity"))
                     EntityUtils.spawnEntity(location, item);
                 else
                     OldEntityUtils.spawnEntity(location, item);

@@ -1,11 +1,14 @@
 package com.songoda.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.*;
+import com.songoda.core.compatibility.CompatibleHand;
+import com.songoda.core.compatibility.CompatibleMaterial;
+import com.songoda.core.compatibility.CompatibleParticleHandler;
+import com.songoda.core.compatibility.CompatibleSound;
+import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.core.hooks.EntityStackerManager;
 import com.songoda.core.locale.Message;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTItem;
+import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.core.utils.ItemUtils;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
@@ -13,11 +16,34 @@ import com.songoda.ultimatecatcher.egg.CEgg;
 import com.songoda.ultimatecatcher.settings.Settings;
 import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
 import com.songoda.ultimatecatcher.utils.EntityUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Ambient;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Boss;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Flying;
+import org.bukkit.entity.Fox;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.WaterMob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,7 +56,15 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public class EntityListeners implements Listener {
 
@@ -48,7 +82,7 @@ public class EntityListeners implements Listener {
         ItemStack item = event.getPlayer().getItemInHand();
         if (item.getType() == Material.AIR) return;
 
-        if (useEgg(event.getPlayer(), item, CompatibleHand.getHand(event)) || NmsManager.getNbt().of(item).has("UC"))
+        if (useEgg(event.getPlayer(), item, CompatibleHand.getHand(event)) || new NBTItem(item).hasKey("UC"))
             event.setCancelled(true);
     }
 
@@ -56,16 +90,16 @@ public class EntityListeners implements Listener {
         if (item.getItemMeta().hasDisplayName()) {
             String name = item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "");
 
-            if (!NmsManager.getNbt().of(item).has("UCI")
-
+            if ((item.getType() != Material.AIR
+                    && !new NBTItem(item).hasKey("UCI"))
                     // Legacy Crap
                     && !name.startsWith("UCI;") && !name.startsWith("UCI-")) return false;
 
             if (oncePerTick.contains(player.getUniqueId())) return true;
 
             String eggType;
-            if (NmsManager.getNbt().of(item).has("UCI")) {
-                eggType = NmsManager.getNbt().of(item).getNBTObject("type").asString();
+            if (new NBTItem(item).hasKey("UCI")) {
+                eggType = new NBTItem(item).getString("type");
             } else {
                 // More legacy crap.
                 String[] split = name.split(";");
@@ -130,7 +164,7 @@ public class EntityListeners implements Listener {
                 && useEgg(player, item, hand)) {
             event.setCancelled(true);
         } else if (item.getItemMeta().hasDisplayName()
-                && (item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-") || NmsManager.getNbt().of(item).has("UC"))) {
+                && (item.getItemMeta().getDisplayName().replace(String.valueOf(ChatColor.COLOR_CHAR), "").startsWith("UC-") || new NBTItem(item).hasKey("UC"))) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR) return;
             event.setCancelled(true);
 
@@ -141,14 +175,13 @@ public class EntityListeners implements Listener {
 
             Location location = player.getEyeLocation().clone();
 
-            NBTItem nbtItem = NmsManager.getNbt().of(item);
-            nbtItem.set("UCI", true);
-            ItemStack toThrow = nbtItem.finish();
+            NBTItem nbtItem = new NBTItem(item);
+            nbtItem.setBoolean("UCI", true);
+            ItemStack toThrow = nbtItem.getItem();
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                     toThrow.removeEnchantment(Enchantment.ARROW_KNOCKBACK), 50);
             toThrow.setAmount(1);
-            ItemUtils.setMaxStack(item, 1);
 
             // When you see it just know it wasn't anyone on our teams idea.
             toThrow.addUnsafeEnchantment(Enchantment.ARROW_KNOCKBACK, 69);
@@ -238,9 +271,9 @@ public class EntityListeners implements Listener {
                 return;
             }
         }
-        
-        if(plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
-        	reject(egg, catcher, true);
+
+        if (plugin.getExternalHookManager().shouldStopCapture(player, entity)) {
+            reject(egg, catcher, true);
             return;
         }
 
