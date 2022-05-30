@@ -6,6 +6,7 @@ import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.core.utils.TextUtils;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.settings.Settings;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -17,17 +18,19 @@ public class CEgg {
 
     private final String key;
     private String name;
+    private CompatibleMaterial material;
     private List<String> recipe;
     private double cost;
     private int chance;
+    private int customModelData;
 
     CEgg(String key) {
         this.key = key;
     }
 
     public ItemStack toItemStack() {
-        ItemStack item = CompatibleMaterial.GHAST_SPAWN_EGG.getItem();
-
+        ItemStack item = material.getItem();
+        
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(TextUtils.formatText(name));
 
@@ -46,6 +49,9 @@ public class CEgg {
         meta.setLore(lore);
 
         item.setItemMeta(meta);
+        
+        if(customModelData!=0)
+        	meta.setCustomModelData(customModelData);
 
         NBTItem nbtItem = new NBTItem(item);
 
@@ -58,6 +64,18 @@ public class CEgg {
     public String getKey() {
         return key;
     }
+    
+    public CompatibleMaterial getMaterial() {
+    	return material;
+    }
+    
+    public void setMaterial(String material) {
+    	try {
+    		this.material = CompatibleMaterial.valueOf(material);
+    	}catch(IllegalArgumentException e) {
+    		this.material = CompatibleMaterial.GHAST_SPAWN_EGG;
+    	}
+    }
 
     public String getName() {
         return name;
@@ -65,6 +83,14 @@ public class CEgg {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public int getCustomModelData() {
+    	return customModelData;
+    }
+    
+    public void setCustomModelData(int customModelData) {
+    	this.customModelData = customModelData;;
     }
 
     public List<String> getRecipe() {
