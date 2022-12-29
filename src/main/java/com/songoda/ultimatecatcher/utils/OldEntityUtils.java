@@ -1,5 +1,7 @@
 package com.songoda.ultimatecatcher.utils;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.songoda.core.compatibility.CompatibleMaterial;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
@@ -25,9 +27,6 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.util.UUID;
 
@@ -173,113 +172,107 @@ public class OldEntityUtils {
 
     @Deprecated
     public static LivingEntity spawnEntity(Location location, String json) {
-        try {
-            json = json.replace("UC-", "");
 
-            JSONParser parser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) parser.parse(json);
+        json = json.replace("UC-", "");
 
-            LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location,
-                    EntityType.valueOf((String) jsonObject.get("type")));
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = (JsonObject) parser.parse(json);
 
-            Object baby = jsonObject.get("baby");
-            Object name = jsonObject.get("name");
-            Object tamed = jsonObject.get("tamed");
+        LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location,
+                EntityType.valueOf(jsonObject.get("type").getAsString()));
 
-            if (baby != null) {
-                if ((boolean) baby)
-                    ((Ageable) entity).setBaby();
-                else
-                    ((Ageable) entity).setAdult();
-            }
+        Object baby = jsonObject.get("baby");
+        String name = jsonObject.get("name").getAsString();
+        Object tamed = jsonObject.get("tamed");
 
-            if (name != null)
-                entity.setCustomName((String) name);
-
-            if (tamed != null) {
-                ((Tameable) entity).setTamed((boolean) tamed);
-                Object owner = jsonObject.get("owner");
-                if (owner != null)
-                    ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString((String) owner)));
-            }
-
-            double health = (double) jsonObject.get("health");
-            entity.setHealth(health > entity.getMaxHealth() ? entity.getMaxHealth() : health);
-
-            switch (entity.getType()) {
-                case CAT:
-                    Cat cat = (Cat) entity;
-                    cat.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
-                    cat.setCatType(Cat.Type.valueOf((String) jsonObject.get("catType")));
-                    break;
-                case WOLF:
-                    Wolf wolf = (Wolf) entity;
-                    wolf.setCollarColor(DyeColor.valueOf((String) jsonObject.get("color")));
-                    break;
-                case PARROT:
-                    Parrot parrot = (Parrot) entity;
-                    parrot.setVariant(Parrot.Variant.valueOf((String) jsonObject.get("variant")));
-                    break;
-                case SHEEP:
-                    Sheep sheep = (Sheep) entity;
-                    sheep.setColor(DyeColor.valueOf((String) jsonObject.get("color")));
-
-                    Object sheared = jsonObject.get("sheered");
-                    if (sheared != null)
-                        sheep.setSheared((boolean) sheared);
-                    break;
-                case LLAMA:
-                    Llama llama = (Llama) entity;
-                    llama.setColor(Llama.Color.valueOf((String) jsonObject.get("color")));
-
-                    Object decor = jsonObject.get("decor");
-
-                    if (decor != null)
-                        llama.getInventory().setDecor(new ItemStack(Material.valueOf((String) decor)));
-                    break;
-                case VILLAGER:
-                    Villager villager = (Villager) entity;
-                    villager.setProfession(Villager.Profession.valueOf((String) jsonObject.get("profession")));
-                    break;
-                case SLIME:
-                    Slime slime = (Slime) entity;
-                    slime.setSize(Math.toIntExact((long) jsonObject.get("size")));
-                    break;
-                case HORSE:
-                    Horse horse = (Horse) entity;
-                    horse.setColor(Horse.Color.valueOf((String) jsonObject.get("color")));
-                    horse.setStyle(Horse.Style.valueOf((String) jsonObject.get("style")));
-                    horse.setJumpStrength((double) jsonObject.get("jump"));
-                    horse.setDomestication(Math.toIntExact((long) jsonObject.get("domestication")));
-                    horse.setMaxDomestication(Math.toIntExact((long) jsonObject.get("maxDomestication")));
-
-                    Object armor = jsonObject.get("armor");
-                    Object saddle = jsonObject.get("saddle");
-
-                    if (armor != null)
-                        horse.getInventory().setArmor(new ItemStack(Material.valueOf((String) armor)));
-
-                    if (saddle != null)
-                        horse.getInventory().setSaddle(new ItemStack(Material.valueOf((String) saddle)));
-
-                    break;
-                case PANDA:
-                    Panda panda = (Panda) entity;
-                    panda.setHiddenGene(Panda.Gene.valueOf((String) jsonObject.get("geneHidden")));
-                    panda.setMainGene(Panda.Gene.valueOf((String) jsonObject.get("geneMain")));
-                    break;
-                case FOX:
-                    String owner = (String) jsonObject.get("owner");
-                    if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
-                        ((Fox) entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
-                    break;
-            }
-
-            return entity;
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (baby != null) {
+            if ((boolean) baby)
+                ((Ageable) entity).setBaby();
+            else
+                ((Ageable) entity).setAdult();
         }
-        return null;
-    }
 
+        if (name != null)
+            entity.setCustomName(name);
+
+        if (tamed != null) {
+            ((Tameable) entity).setTamed((boolean) tamed);
+            String owner = jsonObject.get("owner").getAsString();
+            if (owner != null)
+                ((Tameable) entity).setOwner(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
+        }
+
+        double health = jsonObject.get("health").getAsDouble();
+        entity.setHealth(health > entity.getMaxHealth() ? entity.getMaxHealth() : health);
+
+        switch (entity.getType()) {
+            case CAT:
+                Cat cat = (Cat) entity;
+                cat.setCollarColor(DyeColor.valueOf(jsonObject.get("color").getAsString()));
+                cat.setCatType(Cat.Type.valueOf(jsonObject.get("catType").getAsString()));
+                break;
+            case WOLF:
+                Wolf wolf = (Wolf) entity;
+                wolf.setCollarColor(DyeColor.valueOf(jsonObject.get("color").getAsString()));
+                break;
+            case PARROT:
+                Parrot parrot = (Parrot) entity;
+                parrot.setVariant(Parrot.Variant.valueOf(jsonObject.get("variant").getAsString()));
+                break;
+            case SHEEP:
+                Sheep sheep = (Sheep) entity;
+                sheep.setColor(DyeColor.valueOf(jsonObject.get("color").getAsString()));
+
+                Object sheared = jsonObject.get("sheered");
+                if (sheared != null)
+                    sheep.setSheared((boolean) sheared);
+                break;
+            case LLAMA:
+                Llama llama = (Llama) entity;
+                llama.setColor(Llama.Color.valueOf(jsonObject.get("color").getAsString()));
+
+                Object decor = jsonObject.get("decor");
+
+                if (decor != null)
+                    llama.getInventory().setDecor(new ItemStack(Material.valueOf((String) decor)));
+                break;
+            case VILLAGER:
+                Villager villager = (Villager) entity;
+                villager.setProfession(Villager.Profession.valueOf(jsonObject.get("profession").getAsString()));
+                break;
+            case SLIME:
+                Slime slime = (Slime) entity;
+                slime.setSize(Math.toIntExact(jsonObject.get("size").getAsLong()));
+                break;
+            case HORSE:
+                Horse horse = (Horse) entity;
+                horse.setColor(Horse.Color.valueOf(jsonObject.get("color").getAsString()));
+                horse.setStyle(Horse.Style.valueOf(jsonObject.get("style").getAsString()));
+                horse.setJumpStrength(jsonObject.get("jump").getAsDouble());
+                horse.setDomestication(Math.toIntExact(jsonObject.get("domestication").getAsLong()));
+                horse.setMaxDomestication(Math.toIntExact(jsonObject.get("maxDomestication").getAsLong()));
+
+                String armor = jsonObject.get("armor").getAsString();
+                String saddle = jsonObject.get("saddle").getAsString();
+
+                if (armor != null)
+                    horse.getInventory().setArmor(new ItemStack(Material.valueOf(armor)));
+
+                if (saddle != null)
+                    horse.getInventory().setSaddle(new ItemStack(Material.valueOf(saddle)));
+
+                break;
+            case PANDA:
+                Panda panda = (Panda) entity;
+                panda.setHiddenGene(Panda.Gene.valueOf(jsonObject.get("geneHidden").getAsString()));
+                panda.setMainGene(Panda.Gene.valueOf(jsonObject.get("geneMain").getAsString()));
+                break;
+            case FOX:
+                String owner = jsonObject.get("owner").getAsString();
+                if (owner != null && !owner.trim().equals("") && !owner.equals("00000000-0000-0000-0000-000000000000"))
+                    ((Fox) entity).setFirstTrustedPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
+                break;
+        }
+        return entity;
+    }
 }

@@ -11,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class EntityUtils {
@@ -25,11 +26,7 @@ public class EntityUtils {
         if (EntityStackerManager.isStacked(entity))
             nbtEntity.set("wasStacked", true);
         nbtItem.setBoolean("UC", true);
-        try {
-            nbtItem.setString("serialized_entity", new String(nbtEntity.serialize(), "ISO-8859-1"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        nbtItem.setString("serialized_entity", new String(nbtEntity.serialize(), StandardCharsets.ISO_8859_1));
         return nbtItem.getItem();
     }
 
@@ -39,11 +36,7 @@ public class EntityUtils {
         NBTEntity nbtEntity = NmsManager.getNbt().newEntity();
 
         byte[] encoded = new byte[0];
-        try {
-            encoded = nbtItem.getString("serialized_entity").getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        encoded = nbtItem.getString("serialized_entity").getBytes(StandardCharsets.ISO_8859_1);
         nbtEntity.deSerialize(encoded);
         nbtEntity.set("UUID", UUID.randomUUID());
         LivingEntity entity = (LivingEntity) nbtEntity.spawn(location);
