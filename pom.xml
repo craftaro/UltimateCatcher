@@ -2,7 +2,7 @@
     <groupId>com.songoda</groupId>
     <artifactId>UltimateCatcher</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
@@ -62,13 +62,6 @@
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
 
-                            <artifactSet>
-                                <includes>
-                                    <include>com.songoda:SongodaCore</include>
-                                    <include>com.googlecode.json-simple:json-simple</include>
-                                </includes>
-                            </artifactSet>
-
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -84,11 +77,6 @@
                                 <relocation>
                                     <pattern>com.songoda.core</pattern>
                                     <shadedPattern>${project.groupId}.ultimatecatcher.core</shadedPattern>
-                                </relocation>
-
-                                <relocation>
-                                    <pattern>org.json</pattern>
-                                    <shadedPattern>${project.groupId}.ultimatecatcher.third_party.org.json</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -133,22 +121,14 @@
         <dependency>
             <groupId>com.songoda</groupId>
             <artifactId>SongodaCore</artifactId>
-            <version>2.6.16</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- TODO: Don't rely on json-simple -->
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
+            <version>2.6.17</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.citizensnpcs</groupId>
             <artifactId>citizens</artifactId>
-            <version>2.0.29-SNAPSHOT</version>
+            <version>2.0.30</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
