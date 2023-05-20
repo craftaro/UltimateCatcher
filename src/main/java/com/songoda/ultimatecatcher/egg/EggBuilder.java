@@ -9,6 +9,11 @@ public final class EggBuilder {
     public EggBuilder(String key) {
         this.egg = new CEgg(key);
     }
+    
+    public EggBuilder setMaterial(String name) {
+        this.egg.setMaterial(name);
+        return this;
+    }
 
     public EggBuilder setName(String name) {
         this.egg.setName(name);
@@ -28,6 +33,11 @@ public final class EggBuilder {
     public EggBuilder setChance(int chance) {
         this.egg.setChance(chance);
         return this;
+    }
+    
+    public EggBuilder setCustomModelData(int customModelData) {
+    	this.egg.setCustomModelData(customModelData);
+    	return this;
     }
 
     public CEgg build() {

@@ -27,9 +27,11 @@ public class EggManager {
 
             EggBuilder eggBuilder = new EggBuilder(keyName)
                     .setName(section.getString("Name"))
+                    .setMaterial(section.getString("Material"))
                     .setRecipe(section.getStringList("Recipe"))
                     .setCost(section.getDouble("Cost"))
-                    .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")));
+                    .setChance(Integer.parseInt(section.getString("Chance").replace("%", "")))
+                    .setCustomModelData(Integer.parseInt(section.getString("CustomModelData")));
 
             addEgg(eggBuilder.build());
         }
