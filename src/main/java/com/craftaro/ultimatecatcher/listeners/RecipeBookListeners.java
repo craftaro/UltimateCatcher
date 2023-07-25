@@ -1,7 +1,7 @@
-package com.songoda.ultimatecatcher.listeners;
+package com.craftaro.ultimatecatcher.listeners;
 
-import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.settings.Settings;
+import com.craftaro.ultimatecatcher.settings.Settings;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

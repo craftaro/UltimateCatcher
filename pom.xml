@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
-    <groupId>com.songoda</groupId>
+    <groupId>com.craftaro</groupId>
     <artifactId>UltimateCatcher</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.6.6</version>
+    <version>1.6.7</version>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
@@ -48,7 +48,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0-SNAPSHOT</version>
+                <version>3.4.1</version>
 
                 <executions>
                     <execution>
@@ -71,12 +71,20 @@
                                         <exclude>META-INF/*.RSA</exclude>
                                     </excludes>
                                 </filter>
+                                <filter>
+                                    <artifact>com.craftaro:CraftaroCore</artifact>
+                                    <excludeDefaults>false</excludeDefaults>
+                                    <includes>
+                                        <include>**/nms/v*/**</include>
+                                        <include>**/core/third_party/**</include>
+                                    </includes>
+                                </filter>
                             </filters>
 
                             <relocations>
                                 <relocation>
-                                    <pattern>com.songoda.core</pattern>
-                                    <shadedPattern>${project.groupId}.ultimatecatcher.core</shadedPattern>
+                                    <pattern>com.craftaro.core</pattern>
+                                    <shadedPattern>com.craftaro.ultimatecatcher.core</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -95,8 +103,8 @@
 
     <repositories>
         <repository>
-            <id>songoda-public</id>
-            <url>https://repo.songoda.com/repository/public/</url>
+            <id>craftaro-minecraft-plugins</id>
+            <url>https://repo.craftaro.com/repository/minecraft-plugins/</url>
         </repository>
 
         <repository>
@@ -119,9 +127,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.songoda</groupId>
-            <artifactId>SongodaCore</artifactId>
-            <version>2.6.19</version>
+            <groupId>com.craftaro</groupId>
+            <artifactId>CraftaroCore</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

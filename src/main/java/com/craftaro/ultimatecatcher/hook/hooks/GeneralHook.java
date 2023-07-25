@@ -1,14 +1,14 @@
-package com.songoda.ultimatecatcher.hook.hooks;
+package com.craftaro.ultimatecatcher.hook.hooks;
 
-import com.songoda.core.hooks.ProtectionManager;
-import com.songoda.ultimatecatcher.hook.ExternalHook;
+import com.craftaro.ultimatecatcher.hook.ExternalHook;
+import com.craftaro.core.hooks.ProtectionManager;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class GeneralHook implements ExternalHook {
 
     /* Should allow compatibility with the
-    SongodaCore supported protection hooks.
+    craftaroCore supported protection hooks.
 
     As of writing this it supports:
         BentoBox

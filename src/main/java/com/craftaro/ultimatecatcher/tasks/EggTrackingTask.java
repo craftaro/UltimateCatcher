@@ -1,12 +1,12 @@
-package com.songoda.ultimatecatcher.tasks;
+package com.craftaro.ultimatecatcher.tasks;
 
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.CompatibleParticleHandler;
-import com.songoda.core.compatibility.CompatibleSound;
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.utils.EntityUtils;
-import com.songoda.ultimatecatcher.utils.OldEntityUtils;
+import com.craftaro.core.compatibility.CompatibleParticleHandler;
+import com.craftaro.core.compatibility.CompatibleSound;
+import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
+import com.craftaro.ultimatecatcher.utils.EntityUtils;
+import com.craftaro.ultimatecatcher.utils.OldEntityUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -50,7 +50,7 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 String displayName = item.getItemStack().getItemMeta().getDisplayName();
 
-                boolean inWater = CompatibleMaterial.getMaterial(item.getLocation().getBlock()) == CompatibleMaterial.WATER;
+                boolean inWater = XMaterial.matchXMaterial(item.getLocation().getBlock().getType()) == XMaterial.WATER;
 
                 Entity entity;
                 if (new NBTItem(item.getItemStack()).hasKey("serialized_entity")) {

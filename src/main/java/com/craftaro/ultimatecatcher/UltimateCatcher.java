@@ -1,27 +1,27 @@
-package com.songoda.ultimatecatcher;
+package com.craftaro.ultimatecatcher;
 
-import com.songoda.core.SongodaCore;
-import com.songoda.core.SongodaPlugin;
-import com.songoda.core.commands.CommandManager;
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.ServerVersion;
-import com.songoda.core.configuration.Config;
-import com.songoda.core.gui.GuiManager;
-import com.songoda.core.hooks.EconomyManager;
-import com.songoda.core.hooks.EntityStackerManager;
-import com.songoda.core.utils.TextUtils;
-import com.songoda.ultimatecatcher.commands.CommandGive;
-import com.songoda.ultimatecatcher.commands.CommandReload;
-import com.songoda.ultimatecatcher.commands.CommandSettings;
-import com.songoda.ultimatecatcher.egg.CEgg;
-import com.songoda.ultimatecatcher.egg.EggManager;
-import com.songoda.ultimatecatcher.hook.ExternalHookManager;
-import com.songoda.ultimatecatcher.listeners.DispenserListeners;
-import com.songoda.ultimatecatcher.listeners.EntityListeners;
-import com.songoda.ultimatecatcher.listeners.EntityPickupListeners;
-import com.songoda.ultimatecatcher.listeners.RecipeBookListeners;
-import com.songoda.ultimatecatcher.settings.Settings;
-import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
+import com.craftaro.core.SongodaCore;
+import com.craftaro.core.SongodaPlugin;
+import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.ultimatecatcher.commands.CommandGive;
+import com.craftaro.ultimatecatcher.commands.CommandReload;
+import com.craftaro.ultimatecatcher.commands.CommandSettings;
+import com.craftaro.ultimatecatcher.egg.CEgg;
+import com.craftaro.ultimatecatcher.egg.EggManager;
+import com.craftaro.ultimatecatcher.hook.ExternalHookManager;
+import com.craftaro.ultimatecatcher.listeners.DispenserListeners;
+import com.craftaro.ultimatecatcher.listeners.EntityListeners;
+import com.craftaro.ultimatecatcher.listeners.EntityPickupListeners;
+import com.craftaro.ultimatecatcher.listeners.RecipeBookListeners;
+import com.craftaro.ultimatecatcher.settings.Settings;
+import com.craftaro.ultimatecatcher.tasks.EggTrackingTask;
+import com.craftaro.core.commands.CommandManager;
+import com.craftaro.core.compatibility.ServerVersion;
+import com.craftaro.core.configuration.Config;
+import com.craftaro.core.gui.GuiManager;
+import com.craftaro.core.hooks.EconomyManager;
+import com.craftaro.core.hooks.EntityStackerManager;
+import com.craftaro.core.utils.TextUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -63,8 +63,8 @@ public class UltimateCatcher extends SongodaPlugin {
 
     @Override
     public void onPluginEnable() {
-        // Run Songoda Updater
-        SongodaCore.registerPlugin(this, 51, CompatibleMaterial.EGG);
+        // Run craftaro Updater
+        SongodaCore.registerPlugin(this, 51, XMaterial.EGG);
 
         // Load Economy
         EconomyManager.load();

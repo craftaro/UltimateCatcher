@@ -1,11 +1,12 @@
-package com.songoda.ultimatecatcher.utils;
+package com.craftaro.ultimatecatcher.utils;
 
+import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.ServerVersion;
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.core.utils.ItemUtils;
+import com.craftaro.core.compatibility.CompatibleMaterial;
+import com.craftaro.core.compatibility.ServerVersion;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.core.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -98,8 +99,7 @@ public class OldEntityUtils {
                 llama.setColor(Llama.Color.valueOf(nbtItem.getString("color")));
 
                 if (nbtItem.hasKey("decor"))
-                    llama.getInventory().setDecor(new ItemStack(CompatibleMaterial
-                            .valueOf(nbtItem.getString("decor")).getMaterial()));
+                    llama.getInventory().setDecor(new ItemStack(XMaterial.valueOf(nbtItem.getString("decor")).parseItem().getType()));
             case DONKEY:
             case MULE:
                 ChestedHorse chestedHorse = (ChestedHorse) entity;
@@ -120,7 +120,7 @@ public class OldEntityUtils {
 
                     if (nbtItem.hasKey("saddle"))
                         abstractHorse.getInventory().setSaddle(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getString("saddle"))));
+                                XMaterial.matchXMaterial(nbtItem.getString("saddle")).get().parseMaterial()));
 
                     if (abstractHorse instanceof Horse) {
                         Horse horse = ((Horse) entity);
@@ -130,7 +130,7 @@ public class OldEntityUtils {
 
                         if (nbtItem.hasKey("armor"))
                             horse.getInventory().setArmor(new ItemStack(
-                                    CompatibleMaterial.getItem(nbtItem.getString("armor"))));
+                                    XMaterial.matchXMaterial(nbtItem.getString("armor")).get().parseMaterial()));
 
                     }
                 } else {
@@ -141,7 +141,7 @@ public class OldEntityUtils {
 
                     if (nbtItem.hasKey("saddle"))
                         abstractHorse.getInventory().setSaddle(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getString("saddle"))));
+                                XMaterial.matchXMaterial(nbtItem.getString("saddle")).get().parseMaterial()));
 
                     Horse horse = ((Horse) entity);
                     horse.setColor(Horse.Color.valueOf(nbtItem.getString("color")));
@@ -150,7 +150,7 @@ public class OldEntityUtils {
 
                     if (nbtItem.hasKey("armor"))
                         horse.getInventory().setArmor(new ItemStack(
-                                CompatibleMaterial.getItem(nbtItem.getString("armor"))));
+                                XMaterial.matchXMaterial(nbtItem.getString("armor")).get().parseMaterial()));
 
                 }
                 break;

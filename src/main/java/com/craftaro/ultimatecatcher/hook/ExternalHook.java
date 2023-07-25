@@ -1,4 +1,4 @@
-package com.songoda.ultimatecatcher.hook;
+package com.craftaro.ultimatecatcher.hook;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;

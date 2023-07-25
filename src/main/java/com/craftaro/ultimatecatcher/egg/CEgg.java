@@ -1,11 +1,12 @@
-package com.songoda.ultimatecatcher.egg;
+package com.craftaro.ultimatecatcher.egg;
 
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.locale.Message;
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.core.utils.TextUtils;
-import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.settings.Settings;
+import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.ultimatecatcher.settings.Settings;
+import com.craftaro.core.compatibility.CompatibleMaterial;
+import com.craftaro.core.locale.Message;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.core.utils.TextUtils;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -26,7 +27,7 @@ public class CEgg {
     }
 
     public ItemStack toItemStack() {
-        ItemStack item = CompatibleMaterial.GHAST_SPAWN_EGG.getItem();
+        ItemStack item = XMaterial.GHAST_SPAWN_EGG.parseItem();
 
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(TextUtils.formatText(name));

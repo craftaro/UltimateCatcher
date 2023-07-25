@@ -1,21 +1,22 @@
-package com.songoda.ultimatecatcher.listeners;
+package com.craftaro.ultimatecatcher.listeners;
 
-import com.songoda.core.compatibility.CompatibleHand;
-import com.songoda.core.compatibility.CompatibleMaterial;
-import com.songoda.core.compatibility.CompatibleParticleHandler;
-import com.songoda.core.compatibility.CompatibleSound;
-import com.songoda.core.compatibility.ServerVersion;
-import com.songoda.core.hooks.EconomyManager;
-import com.songoda.core.hooks.EntityStackerManager;
-import com.songoda.core.locale.Message;
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.core.utils.ItemUtils;
-import com.songoda.core.utils.TextUtils;
-import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.egg.CEgg;
-import com.songoda.ultimatecatcher.settings.Settings;
-import com.songoda.ultimatecatcher.tasks.EggTrackingTask;
-import com.songoda.ultimatecatcher.utils.EntityUtils;
+import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.ultimatecatcher.egg.CEgg;
+import com.craftaro.ultimatecatcher.settings.Settings;
+import com.craftaro.core.compatibility.CompatibleHand;
+import com.craftaro.core.compatibility.CompatibleMaterial;
+import com.craftaro.core.compatibility.CompatibleParticleHandler;
+import com.craftaro.core.compatibility.CompatibleSound;
+import com.craftaro.core.compatibility.ServerVersion;
+import com.craftaro.core.hooks.EconomyManager;
+import com.craftaro.core.hooks.EntityStackerManager;
+import com.craftaro.core.locale.Message;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.core.utils.ItemUtils;
+import com.craftaro.core.utils.TextUtils;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
+import com.craftaro.ultimatecatcher.tasks.EggTrackingTask;
+import com.craftaro.ultimatecatcher.utils.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -152,7 +153,7 @@ public class EntityListeners implements Listener {
 
         if (event.getItem() == null
                 || event.getClickedBlock() != null
-                && event.getClickedBlock().getType() == CompatibleMaterial.SPAWNER.getMaterial()) return;
+                && event.getClickedBlock().getType() == XMaterial.SPAWNER.parseMaterial()) return;
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
@@ -361,11 +362,11 @@ public class EntityListeners implements Listener {
 
         egg.remove();
 
-        CompatibleMaterial spawnEgg = CompatibleMaterial.getSpawnEgg(entity.getType());
+        Optional<XMaterial> spawnEgg = CompatibleMaterial.getSpawnEgg(entity.getType());
         if (spawnEgg == null) {
             return;
         }
-        ItemStack item = spawnEgg.getItem();
+        ItemStack item = spawnEgg.get().parseItem();
 
         if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(livingEntity))
             EntityStackerManager.getStacker().removeOne(livingEntity);

@@ -1,10 +1,10 @@
-package com.songoda.ultimatecatcher.listeners;
+package com.craftaro.ultimatecatcher.listeners;
 
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.ultimatecatcher.UltimateCatcher;
-import com.songoda.ultimatecatcher.settings.Settings;
-import com.songoda.ultimatecatcher.utils.EntityUtils;
-import com.songoda.ultimatecatcher.utils.OldEntityUtils;
+import com.craftaro.ultimatecatcher.settings.Settings;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
+import com.craftaro.ultimatecatcher.utils.EntityUtils;
+import com.craftaro.ultimatecatcher.utils.OldEntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

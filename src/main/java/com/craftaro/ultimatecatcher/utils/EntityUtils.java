@@ -1,16 +1,15 @@
-package com.songoda.ultimatecatcher.utils;
+package com.craftaro.ultimatecatcher.utils;
 
-import com.songoda.core.hooks.EntityStackerManager;
-import com.songoda.core.nms.NmsManager;
-import com.songoda.core.nms.nbt.NBTEntity;
-import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
-import com.songoda.ultimatecatcher.UltimateCatcher;
+import com.craftaro.ultimatecatcher.UltimateCatcher;
+import com.craftaro.core.hooks.EntityStackerManager;
+import com.craftaro.core.nms.NmsManager;
+import com.craftaro.core.nms.nbt.NBTEntity;
+import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
