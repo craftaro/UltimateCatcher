@@ -2,7 +2,7 @@ package com.craftaro.ultimatecatcher.tasks;
 
 import com.craftaro.core.compatibility.CompatibleParticleHandler;
 import com.craftaro.core.compatibility.CompatibleSound;
-import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.third_party.com.cryptomorin.xseries.XMaterial;
 import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.craftaro.ultimatecatcher.UltimateCatcher;
 import com.craftaro.ultimatecatcher.utils.EntityUtils;

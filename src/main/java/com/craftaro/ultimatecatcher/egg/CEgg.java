@@ -1,6 +1,6 @@
 package com.craftaro.ultimatecatcher.egg;
 
-import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.third_party.com.cryptomorin.xseries.XMaterial;
 import com.craftaro.ultimatecatcher.settings.Settings;
 import com.craftaro.core.compatibility.CompatibleMaterial;
 import com.craftaro.core.locale.Message;

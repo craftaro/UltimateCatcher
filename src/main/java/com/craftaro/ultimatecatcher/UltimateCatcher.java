@@ -2,7 +2,8 @@ package com.craftaro.ultimatecatcher;
 
 import com.craftaro.core.SongodaCore;
 import com.craftaro.core.SongodaPlugin;
-import com.craftaro.core.third_party.com.cryptomorin.xseries.XMaterial;
+import com.craftaro.core.dependency.Dependency;
+import com.craftaro.third_party.com.cryptomorin.xseries.XMaterial;
 import com.craftaro.ultimatecatcher.commands.CommandGive;
 import com.craftaro.ultimatecatcher.commands.CommandReload;
 import com.craftaro.ultimatecatcher.commands.CommandSettings;
@@ -54,6 +55,11 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public static UltimateCatcher getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    protected Set<Dependency> getDependencies() {
+        return new HashSet<>();
     }
 
     @Override
