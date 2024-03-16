@@ -324,6 +324,7 @@ public class EggHandler {
         return entity instanceof Tameable
                 && Settings.REJECT_TAMED.getBoolean()
                 && ((Tameable) entity).isTamed()
+                && ((Tameable) entity).getOwner() != null
                 && ((Tameable) entity).getOwner().getUniqueId() != player.getUniqueId();
     }
 
