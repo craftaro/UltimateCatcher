@@ -389,7 +389,7 @@ public class EggHandler {
     }
 
     private void removeEntityFromWorld(LivingEntity entity) {
-        if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(entity))
+        if (EntityStackerManager.getStacker() != null && EntityStackerManager.isStacked(entity) && EntityStackerManager.getSize(entity) > 1)
             EntityStackerManager.getStacker().removeOne(entity);
         else
             entity.remove();
