@@ -1,9 +1,9 @@
 package com.craftaro.ultimatecatcher.tasks;
 
 import com.craftaro.core.compatibility.CompatibleParticleHandler;
-import com.craftaro.core.compatibility.CompatibleSound;
 import com.craftaro.third_party.com.cryptomorin.xseries.XMaterial;
 import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
+import com.craftaro.third_party.com.cryptomorin.xseries.XSound;
 import com.craftaro.ultimatecatcher.UltimateCatcher;
 import com.craftaro.ultimatecatcher.utils.EntityUtils;
 import com.craftaro.ultimatecatcher.utils.OldEntityUtils;
@@ -68,7 +68,7 @@ public class EggTrackingTask extends BukkitRunnable {
 
                 // Couldn't spawn
                 if (entity == null) {
-                    plugin.getEntityListeners().getEggs().remove(item.getUniqueId());
+                    plugin.getEggHandler().getEggs().remove(item.getUniqueId());
 
                     item.getItemStack().removeEnchantment(Enchantment.ARROW_KNOCKBACK);
                     item.setPickupDelay(1);
@@ -80,7 +80,7 @@ public class EggTrackingTask extends BukkitRunnable {
                 }
 
                 CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.SMOKE_NORMAL, entity.getLocation(), 100, .5, .5, .5);
-                CompatibleSound.ITEM_FIRECHARGE_USE.play(entity.getWorld(), entity.getLocation(), 1L, 1L);
+                XSound.ITEM_FIRECHARGE_USE.play(entity.getLocation(), 1L, 1L);
 
                 item.remove();
             }

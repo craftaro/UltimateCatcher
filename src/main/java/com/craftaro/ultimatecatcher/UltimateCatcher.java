@@ -8,6 +8,7 @@ import com.craftaro.ultimatecatcher.commands.CommandGive;
 import com.craftaro.ultimatecatcher.commands.CommandReload;
 import com.craftaro.ultimatecatcher.commands.CommandSettings;
 import com.craftaro.ultimatecatcher.egg.CEgg;
+import com.craftaro.ultimatecatcher.egg.EggHandler;
 import com.craftaro.ultimatecatcher.egg.EggManager;
 import com.craftaro.ultimatecatcher.hook.ExternalHookManager;
 import com.craftaro.ultimatecatcher.listeners.DispenserListeners;
@@ -52,6 +53,7 @@ public class UltimateCatcher extends SongodaPlugin {
     private ExternalHookManager externalHookManager;
 
     private final Set<NamespacedKey> registeredRecipes = new HashSet<>();
+    private EggHandler eggHandler;
 
     public static UltimateCatcher getInstance() {
         return INSTANCE;
@@ -99,14 +101,16 @@ public class UltimateCatcher extends SongodaPlugin {
 
         this.eggManager = new EggManager();
 
+        eggHandler = new EggHandler(this);
+
         // Setup Listeners
         guiManager.init();
         PluginManager pluginManager = Bukkit.getPluginManager();
-        entityListeners = new EntityListeners(this);
+        entityListeners = new EntityListeners(this, eggHandler);
         pluginManager.registerEvents(entityListeners, this);
         pluginManager.registerEvents(new DispenserListeners(), this);
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_12))
-            pluginManager.registerEvents(new EntityPickupListeners(), this);
+            pluginManager.registerEvents(new EntityPickupListeners(this), this);
         if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_14))
             pluginManager.registerEvents(new RecipeBookListeners(this), this);
 
@@ -252,5 +256,9 @@ public class UltimateCatcher extends SongodaPlugin {
 
     public Set<NamespacedKey> getRegisteredRecipes() {
         return Collections.unmodifiableSet(registeredRecipes);
+    }
+
+    public EggHandler getEggHandler() {
+        return eggHandler;
     }
 }
