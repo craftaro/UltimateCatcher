@@ -8,8 +8,15 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 
 public class EntityPickupListeners implements Listener {
 
+    private final UltimateCatcher plugin;
+
+    public EntityPickupListeners(UltimateCatcher plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEggPoke(EntityPickupItemEvent event) {
-        if (UltimateCatcher.getInstance().getEntityListeners().getEggs().containsKey(event.getItem().getUniqueId())) event.setCancelled(true);
+        if (plugin.getEggHandler().getEggs().containsKey(event.getItem().getUniqueId()))
+            event.setCancelled(true);
     }
 }
