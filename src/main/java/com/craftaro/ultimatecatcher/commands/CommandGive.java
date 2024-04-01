@@ -1,9 +1,9 @@
 package com.craftaro.ultimatecatcher.commands;
 
-import com.craftaro.ultimatecatcher.egg.CEgg;
 import com.craftaro.core.commands.AbstractCommand;
 import com.craftaro.core.utils.PlayerUtils;
 import com.craftaro.ultimatecatcher.UltimateCatcher;
+import com.craftaro.ultimatecatcher.egg.CEgg;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,73 +14,84 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandGive extends AbstractCommand {
+    private final UltimateCatcher plugin;
 
-    final UltimateCatcher instance;
-
-    public CommandGive(UltimateCatcher instance) {
-        super(false, "give");
-        this.instance = instance;
+    public CommandGive(UltimateCatcher plugin) {
+        super(CommandType.CONSOLE_OK, "give");
+        this.plugin = plugin;
     }
 
     @Override
     protected ReturnType runCommand(CommandSender sender, String... args) {
-        if (args.length != 2) return ReturnType.SYNTAX_ERROR;
-
-        final Player player = Bukkit.getPlayer(args[0]);
-        if (player == null && !args[0].trim().toLowerCase().equals("all")) {
-            sender.sendMessage("Not a player...");
-            return ReturnType.FAILURE;
+        if (args.length < 1 || args.length > 2) {
+            return ReturnType.SYNTAX_ERROR;
         }
 
-        CEgg catcher = instance.getEggManager().getEgg(args[1]);
+        CEgg egg;
+        Player player;
 
-        if (catcher == null) {
-            sender.sendMessage("Not an egg...");
+        if (args.length == 2 && Bukkit.getPlayer(args[0]) == null) {
+            this.plugin.getLocale().getMessage("command.give.player-not-found").sendPrefixedMessage(sender);
             return ReturnType.FAILURE;
-        }
-
-        ItemStack itemStack = catcher.toItemStack();
-        if (player != null) {
-            player.getInventory().addItem(itemStack);
-        } else {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.getInventory().addItem(itemStack);
+        } else if (args.length == 1) {
+            if (!(sender instanceof Player)) {
+                this.plugin.getLocale().getMessage("command.give.player-only").sendPrefixedMessage(sender);
+                return ReturnType.FAILURE;
             }
+            player = (Player) sender;
+        } else {
+            player = Bukkit.getPlayer(args[0]);
         }
+
+        egg = this.plugin.getEggManager().getEgg(args[args.length - 1]);
+        if (egg == null) {
+            this.plugin.getLocale().getMessage("command.give.invalid-egg")
+                    .processPlaceholder("eggs", this.plugin.getEggManager().getRegisteredEggs().stream().map(CEgg::getKey).collect(Collectors.joining(", ")))
+                    .sendPrefixedMessage(sender);
+            return ReturnType.FAILURE;
+        }
+
+        ItemStack itemStack = egg.toItemStack();
+        player.getInventory().addItem(itemStack);
+
+        this.plugin.getLocale().getMessage("command.give.success")
+                .processPlaceholder("egg", egg.getKey())
+                .processPlaceholder("player", player.getName())
+                .sendPrefixedMessage(sender);
+
+        if (player != sender) {
+            this.plugin.getLocale().getMessage("command.give.received")
+                    .processPlaceholder("egg", egg.getKey())
+                    .sendPrefixedMessage(player);
+        }
+
         return ReturnType.SUCCESS;
-    }
-
-    @Override
-    public String getPermissionNode() {
-        return "ultimatecatcher.admin";
-    }
-
-    @Override
-    public String getSyntax() {
-        StringBuilder keys = new StringBuilder();
-        for (CEgg egg : UltimateCatcher.getInstance().getEggManager().getRegisteredEggs()) {
-            keys.append("/").append(egg.getKey());
-        }
-        return "give <player/all> <" + keys.substring(1) + ">";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Give an egg.";
     }
 
     @Override
     protected List<String> onTab(CommandSender sender, String... args) {
         List<String> tab = null;
-
         if (args.length == 1) {
-            tab = new ArrayList();
-            tab.add("all");
+            tab = new ArrayList<>();
             tab.addAll(PlayerUtils.getVisiblePlayerNames(sender, args[0]));
         } else if (args.length == 2) {
-            tab = UltimateCatcher.getInstance().getEggManager().getRegisteredEggs().stream().map(e -> e.getKey()).collect(Collectors.toList());
+            tab = this.plugin.getEggManager().getRegisteredEggs().stream().map(CEgg::getKey).collect(Collectors.toList());
         }
-
         return tab;
+    }
+
+    @Override
+    public String getPermissionNode() {
+        return "ultimatecatcher.admin.give";
+    }
+
+    @Override
+    public String getSyntax() {
+        return "give [player] <egg>";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Give an egg to a player.";
     }
 }

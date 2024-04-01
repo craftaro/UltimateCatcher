@@ -1,5 +1,4 @@
 # General Messages
-
 general:
   nametag:
     prefix: '&8[&6UltimateCatcher&8]'
@@ -18,7 +17,6 @@ general:
     trusted: '&6Trusted'
 
 # Event Messages
-
 event:
   general:
     nopermission: '&cYou do not have permission to do that.'
@@ -30,3 +28,12 @@ event:
     notyours: '&cYou cannot catch entities tamed by others.'
     blockedcatchingworld: '&cCatching entities in world &4%world%&c is disabled.'
     blockedspawningworld: '&cSpawning caught entities in world &4%world%&c is disabled.'
+
+# Command Messages
+command:
+  give:
+    player-not-found: '&cThat player does not exist or is currently offline.'
+    player-only: '&cYou need to be a player to give an egg to yourself.'
+    invalid-egg: '&cNot a valid egg... The current valid eggs are: &4%eggs%'
+    success: '&7You gave the &6%egg%&7 egg to &6%player%&7.'
+    received: '&7You received a &6%egg%&7 egg.'
