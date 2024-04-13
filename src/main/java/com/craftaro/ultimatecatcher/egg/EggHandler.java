@@ -193,16 +193,23 @@ public class EggHandler {
 
     @SuppressWarnings("deprecation")
     private Optional<LivingEntity> getCaughtEntity(Egg egg, ProjectileHitEvent event) {
-        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11))
-            return Optional.ofNullable((LivingEntity) event.getHitEntity());
-
-        return egg.getNearbyEntities(2, 2, 2).stream()
-                .filter(e -> e instanceof LivingEntity
-                        && e.getType() != EntityType.PLAYER
-                        && e.getTicksLived() > 20)
-                .map(e -> (LivingEntity) e)
-                .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation())))
-                .findFirst();
+        if (ServerVersion.isServerVersionAtLeast(ServerVersion.V1_11)) {
+            Entity hitEntity = event.getHitEntity();
+            if (hitEntity instanceof LivingEntity) {
+                return Optional.of((LivingEntity) hitEntity);
+            } else {
+                event.setCancelled(true);
+                return Optional.empty();
+            }
+        } else {
+            return egg.getNearbyEntities(2, 2, 2).stream()
+                    .filter(e -> e instanceof LivingEntity
+                            && e.getType() != EntityType.PLAYER
+                            && e.getTicksLived() > 20)
+                    .map(e -> (LivingEntity) e)
+                    .sorted(Comparator.comparingDouble(e -> e.getLocation().distance(egg.getLocation())))
+                    .findFirst();
+        }
     }
 
     private void removeTemporaryChicken(Egg egg) {
