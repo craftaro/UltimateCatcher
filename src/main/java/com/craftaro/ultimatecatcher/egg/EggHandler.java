@@ -422,7 +422,7 @@ public class EggHandler {
         meta.setDisplayName(plugin.getLocale().getMessage("general.catcher.spawn")
                 .processPlaceholder("type",
                         TextUtils.formatText(getEntityName(entity)))
-                .getMessage());
+                .toText());
     }
 
     private String getEntityName(LivingEntity entity) {
@@ -451,26 +451,26 @@ public class EggHandler {
                         .processPlaceholder("value", ((Ageable) entity).isAdult()
                                 ? plugin.getLocale().getMessage("general.catcher.adult").getMessage()
                                 : plugin.getLocale().getMessage("general.catcher.baby").getMessage())
-                        .getMessage();
+                        .toText();
             return null;
         }
 
         if (line.toLowerCase().contains("%tamed%")) {
             if (entity instanceof Tameable && ((Tameable) entity).isTamed())
-                return plugin.getLocale().getMessage("general.catcherinfo.tamed").getMessage();
+                return plugin.getLocale().getMessage("general.catcherinfo.tamed").toText();
             return null;
         }
 
         if (line.toLowerCase().contains("%trusted%")) {
             if (isTrustedFoxByOther(player, entity))
-                return plugin.getLocale().getMessage("general.catcherinfo.trusted").getMessage();
+                return plugin.getLocale().getMessage("general.catcherinfo.trusted").toText();
             return null;
         }
 
         return messageLine
                 .processPlaceholder("health", getHealthLine(entity))
                 .processPlaceholder("type", getTypeLine(entity))
-                .getMessage();
+                .toText();
     }
 
     private String getHealthLine(LivingEntity entity) {
@@ -481,13 +481,13 @@ public class EggHandler {
                 .processPlaceholder("value", health == maxHealth
                         ? plugin.getLocale().getMessage("general.catcher.max").getMessage()
                         : health + "/" + maxHealth)
-                .getMessage();
+                .toText();
     }
 
     private String getTypeLine(LivingEntity entity) {
         return plugin.getLocale().getMessage("general.catcherinfo.type")
                 .processPlaceholder("value", EntityUtils.getFormattedEntityType(entity.getType()))
-                .getMessage();
+                .toText();
     }
 
     private void removeEgg(Egg egg) {

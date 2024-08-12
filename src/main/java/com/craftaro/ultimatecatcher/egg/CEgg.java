@@ -34,14 +34,14 @@ public class CEgg {
 
         String costLine = UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorecost")
                 .processPlaceholder("cost", cost)
-                .getMessage();
+                .toText();
 
         String chanceLine = UltimateCatcher.getInstance().getLocale().getMessage("general.catcher.lorechance")
                 .processPlaceholder("chance", chance)
-                .getMessage();
+                .toText();
 
         List<String> lore = Settings.CATCHER_LORE_FORMAT.getStringList().stream()
-                .map(line -> new Message(line).processPlaceholder("cost", costLine).processPlaceholder("chance", chanceLine).getMessage())
+                .map(line -> new Message(line).processPlaceholder("cost", costLine).processPlaceholder("chance", chanceLine).toText())
                 .collect(Collectors.toList());
 
         meta.setLore(lore);
