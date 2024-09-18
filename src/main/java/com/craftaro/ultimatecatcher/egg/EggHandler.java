@@ -449,8 +449,8 @@ public class EggHandler {
             if (entity instanceof Ageable)
                 return plugin.getLocale().getMessage("general.catcherinfo.age")
                         .processPlaceholder("value", ((Ageable) entity).isAdult()
-                                ? plugin.getLocale().getMessage("general.catcher.adult").getMessage()
-                                : plugin.getLocale().getMessage("general.catcher.baby").getMessage())
+                                ? plugin.getLocale().getMessage("general.catcher.adult").toText()
+                                : plugin.getLocale().getMessage("general.catcher.baby").toText())
                         .toText();
             return null;
         }
@@ -479,7 +479,7 @@ public class EggHandler {
 
         return plugin.getLocale().getMessage("general.catcherinfo.health")
                 .processPlaceholder("value", health == maxHealth
-                        ? plugin.getLocale().getMessage("general.catcher.max").getMessage()
+                        ? plugin.getLocale().getMessage("general.catcher.max").toText()
                         : health + "/" + maxHealth)
                 .toText();
     }
