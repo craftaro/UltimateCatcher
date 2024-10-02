@@ -1,8 +1,8 @@
 package com.craftaro.ultimatecatcher.utils;
 
+import com.craftaro.core.nms.Nms;
 import com.craftaro.ultimatecatcher.UltimateCatcher;
 import com.craftaro.core.hooks.EntityStackerManager;
-import com.craftaro.core.nms.NmsManager;
 import com.craftaro.core.nms.nbt.NBTEntity;
 import com.craftaro.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.Location;
@@ -21,7 +21,7 @@ public class EntityUtils {
 
     public static ItemStack serializeEntity(ItemStack item, LivingEntity entity) {
         NBTItem nbtItem = new NBTItem(item);
-        NBTEntity nbtEntity = NmsManager.getNbt().of(entity);
+        NBTEntity nbtEntity = Nms.getImplementations().getNbt().of(entity);
         if (EntityStackerManager.isStacked(entity))
             nbtEntity.set("wasStacked", true);
         nbtItem.setBoolean("UC", true);
@@ -32,7 +32,7 @@ public class EntityUtils {
 
     public static LivingEntity spawnEntity(Location location, ItemStack item) {
         NBTItem nbtItem = new NBTItem(item);
-        NBTEntity nbtEntity = NmsManager.getNbt().newEntity();
+        NBTEntity nbtEntity = Nms.getImplementations().getNbt().newEntity();
 
         byte[] encoded = new byte[0];
         encoded = nbtItem.getString("serialized_entity").getBytes(StandardCharsets.ISO_8859_1);
