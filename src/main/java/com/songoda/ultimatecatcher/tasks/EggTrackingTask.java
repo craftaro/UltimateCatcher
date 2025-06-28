@@ -40,6 +40,12 @@ public class EggTrackingTask extends BukkitRunnable {
     @Override
     public void run() {
         for (Item item : new HashSet<>(eggs)) {
+            // Skip if this egg is no longer tracked by EggHandler
+            if (!UltimateCatcher.getInstance().getEggHandler().getEggs().containsKey(item.getUniqueId())) {
+                eggs.remove(item);
+                continue;
+            }
+
             if (!item.isValid()) {
                 eggs.remove(item);
                 item.remove();

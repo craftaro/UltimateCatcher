@@ -500,6 +500,7 @@ public class EggHandler {
             XSound.ENTITY_VILLAGER_NO.play(egg.getLocation(), 1L, 1L);
 
         egg.getWorld().dropItem(egg.getLocation(), catcher.toItemStack());
+        eggs.remove(egg.getUniqueId());
         egg.remove();
     }
 
