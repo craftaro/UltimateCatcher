@@ -5,6 +5,7 @@ import com.songoda.core.third_party.de.tr7zw.nbtapi.NBTItem;
 import com.songoda.third_party.com.cryptomorin.xseries.XMaterial;
 import com.songoda.ultimatecatcher.UltimateCatcher;
 import com.songoda.ultimatecatcher.egg.EggHandler;
+import com.songoda.ultimatecatcher.settings.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -64,9 +65,19 @@ public class EntityListeners implements Listener {
     public void onToss(PlayerInteractEvent event) {
         CompatibleHand hand = CompatibleHand.getHand(event);
 
-        if (event.getItem() == null
-                || event.getClickedBlock() != null
-                && event.getClickedBlock().getType() == XMaterial.SPAWNER.parseMaterial()) return;
+        if (event.getItem() == null) return;
+
+        if (event.getClickedBlock() != null
+                && event.getClickedBlock().getType() == XMaterial.SPAWNER.parseMaterial()) {
+            NBTItem nbtItem = new NBTItem(event.getItem());
+            if (Settings.BLOCK_SPAWNER_TYPE_CHANGE_WITH_CAUGHT_EGGS.getBoolean()
+                    && (nbtItem.hasKey("UC") || nbtItem.hasKey("UCI"))) {
+                plugin.getLocale().getMessage("event.general.spawner-type-change-blocked")
+                        .sendPrefixedMessage(event.getPlayer());
+                event.setCancelled(true);
+            }
+            return;
+        }
 
         ItemStack item = event.getItem();
         Player player = event.getPlayer();

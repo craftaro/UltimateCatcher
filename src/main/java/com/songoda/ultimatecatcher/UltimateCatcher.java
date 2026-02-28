@@ -217,6 +217,8 @@ public class UltimateCatcher extends SongodaPlugin {
     public void onConfigReload() {
         this.removeLegacyRecipes();
 
+        Settings.setupConfig();
+
         this.setLocale(Settings.LANGUAGE_MODE.getString(), true);
         this.mobConfig.load();
 

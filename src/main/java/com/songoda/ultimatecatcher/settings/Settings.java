@@ -15,6 +15,10 @@ public class Settings {
     public static final ConfigSetting USE_CATCHER_RECIPE = new ConfigSetting(config, "Main.Use Catcher Recipe", true,
             "Should egg recipes be enabled.");
 
+    public static final ConfigSetting BLOCK_SPAWNER_TYPE_CHANGE_WITH_CAUGHT_EGGS = new ConfigSetting(config, "Main.Block Spawner Type Change With Caught Eggs", true,
+            "Should caught/created spawn eggs be prevented from changing spawner type?",
+            "This only affects eggs created by this plugin (eggs with UC NBT). Vanilla spawn eggs are unaffected.");
+
     public static final ConfigSetting REJECT_TAMED = new ConfigSetting(config, "Main.Reject Tamed Entities That Are Not Yours", true,
             "Should players attempting to tame another players tamed entity",
             "be rejected?");

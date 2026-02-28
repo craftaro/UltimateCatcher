@@ -20,6 +20,7 @@ general:
 event:
   general:
     nopermission: '&cYou do not have permission to do that.'
+    spawner-type-change-blocked: '&cYou cannot change spawner type using caught eggs.'
   catch:
     success: '&7You successfully captured the &6%type%&7.'
     failed: '&cYou failed to capture the &4%type%&c.'
