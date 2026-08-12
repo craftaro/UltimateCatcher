@@ -2,7 +2,7 @@
     <groupId>com.songoda</groupId>
     <artifactId>UltimateCatcher</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <version>3.9.0</version>
+    <version>3.10.0</version>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
